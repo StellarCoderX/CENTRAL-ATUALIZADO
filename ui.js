@@ -94,9 +94,6 @@ const UI = {
                     </form>
                     <div class="text-center mt-3">
                         <p class="terminal-text">Já possui uma conta? <a href="#login" class="link cyber-link">Fazer Login</a></p>
-                        <p class="cyber-text" style="color: var(--success); font-size: 0.9rem; margin-top: 1rem;">
-                            <i class="fas fa-gift"></i> Novos usuários podem receber créditos!
-                        </p>
                     </div>
                 </div>
             </div>
@@ -111,6 +108,7 @@ const UI = {
     });
   },
 
+  // --- FUNÇÃO DO DASHBOARD ATUALIZADA ---
   async renderDashboardPage() {
     document.title = "Dashboard | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
@@ -118,22 +116,20 @@ const UI = {
       window.location.hash = "#login";
       return;
     }
+
+    // Formatando os créditos do usuário para o formato de moeda BRL (R$)
+    const balance = (user.credits || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
     this.appRoot.innerHTML = `
         <div class="dashboard-container cyber-fade-in">
             <header class="dashboard-header">
                 <div class="user-info">
-                    <div class="user-avatar cyber-glow" id="header-avatar">
-                        ${
-                          user.avatarUrl
-                            ? `<img src="${user.avatarUrl}">`
-                            : `<i class="fas fa-user-circle" style="font-size: 40px;"></i>`
-                        }
+                    <div class="user-avatar cyber-glow" id="header-avatar" style="font-size: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent));">
+                         ${user.avatarUrl ? `<img src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%;">` : (user.username ? user.username.charAt(0).toUpperCase() : 'U')}
                     </div>
                     <div>
-                        <div class="cyber-text">Bem-vindo, ${
-                          user.username || user.email
-                        }</div>
-                        <div class="terminal-text" id="user-balance">Saldo: Carregando... | Sistema: <span class="status-online">ONLINE</span></div>
+                        <div class="cyber-text">Bem-vindo, ${user.username || user.email}</div>
+                        <div class="terminal-text" id="user-balance">Saldo: ${balance} | Sistema: <span class="status-online">ONLINE</span></div>
                     </div>
                 </div>
                 <nav class="flex gap-2">
@@ -151,26 +147,132 @@ const UI = {
                     <p class="subtitle terminal-text">Selecione uma ferramenta para iniciar a operação.</p>
                 </div>
                 <div class="tools-grid" id="tools-grid">
-                    <div class="text-center" style="grid-column: 1 / -1; padding: 3rem;"><i class="fas fa-spinner fa-spin cyber-pulse" style="font-size: 4rem;"></i><h3 class="terminal-text">Carregando ferramentas...</h3></div>
+                    <a href="#" class="tool-card cyber-tool-card">
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
+                        <h2 class="tool-name cyber-text">CHK CC FULL</h2>
+                        <p class="tool-desc terminal-text">DEBITANDO | USE PROXY</p>
+                        <div class="tool-status">
+                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card cyber-tool-card">
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-rocket"></i><div class="tool-icon-glow"></div></div>
+                        <h2 class="tool-name cyber-text">CHK KABUM</h2>
+                        <p class="tool-desc terminal-text">CHK LOGIN</p>
+                        <div class="tool-status">
+                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card cyber-tool-card">
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-shield-alt"></i><div class="tool-icon-glow"></div></div>
+                        <h2 class="tool-name cyber-text">CHK SHEIN</h2>
+                        <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live | USE PROXY!</p>
+                        <div class="tool-status">
+                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                        </div>
+                    </a>
                 </div>
             </main>
         </div>`;
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
-    setTimeout(() => {
-      document.getElementById("user-balance").innerHTML = `Saldo: ${
-        user.credits || 0
-      } Créditos | Sistema: <span class="status-online">ONLINE</span>`;
-      const toolsGrid = document.getElementById("tools-grid");
-      toolsGrid.innerHTML = `
-                 <a href="#" class="tool-card cyber-tool-card">
-                    <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
-                    <h2 class="tool-name cyber-text">Checker Exemplo</h2>
-                    <p class="tool-desc terminal-text">Uma ferramenta de exemplo para demonstração.</p>
-                    <div class="tool-status"><span class="status-indicator"></span><span class="status-text">online</span></div>
-                </a>
-            `;
-    }, 1000);
   },
+
+  // --- NOVA FUNÇÃO PARA A PÁGINA DE PERFIL ---
+  renderProfilePage() {
+    document.title = "Meu Perfil | Central de Checkers Pro";
+    const user = Auth.getCurrentUser();
+    this.appRoot.innerHTML = `
+      <div class="main-container">
+        <div class="content-wrapper cyber-fade-in" style="max-width: 700px;">
+          <div class="main-card cyber-card">
+            <div class="header">
+              <div class="logo">
+                <div class="logo-icon cyber-icon"><i class="fas fa-user-cog"></i><div class="icon-pulse"></div></div>
+                <h1 class="logo-text cyber-title">Meu Perfil</h1>
+              </div>
+              <p class="subtitle terminal-text">Gerencie suas informações e segurança.</p>
+            </div>
+
+            <form id="profileForm">
+              <div class="form-group text-center">
+                  <label class="form-label cyber-label">Foto de Perfil</label>
+                  <div class="user-avatar cyber-glow" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--accent));">
+                      ${user.avatarUrl ? `<img src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%;">` : (user.username ? user.username.charAt(0).toUpperCase() : 'U')}
+                  </div>
+                  <input type="file" id="avatarUpload" class="cyber-input" accept="image/*" style="padding: 0.5rem;">
+                  <p class="terminal-text" style="font-size: 0.8rem; margin-top: 0.5rem;">Envie uma imagem para seu avatar.</p>
+              </div>
+
+              <hr class="cyber-divider">
+
+              <h2 class="cyber-text" style="text-align:center; margin-bottom: 1.5rem;">Alterar Senha</h2>
+              <div class="form-group">
+                <label for="currentPassword" class="form-label cyber-label">Senha Atual</label>
+                <input type="password" id="currentPassword" class="form-input cyber-input" placeholder="Sua senha atual">
+              </div>
+              <div class="form-group">
+                <label for="newPassword" class="form-label cyber-label">Nova Senha</label>
+                <input type="password" id="newPassword" class="form-input cyber-input" placeholder="Mínimo 8 caracteres">
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword" class="form-label cyber-label">Confirmar Nova Senha</label>
+                <input type="password" id="confirmPassword" class="form-input cyber-input" placeholder="Repita a nova senha">
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full cyber-btn cyber-execute-btn mt-3">
+                <i class="fas fa-save"></i> <span class="btn-text">Salvar Alterações</span><div class="btn-glow"></div>
+              </button>
+            </form>
+            <div class="text-center mt-3">
+              <a href="#dashboard" class="link cyber-link">Voltar para o Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('profileForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        // A lógica para salvar as alterações no servidor precisaria ser implementada aqui,
+        // envolvendo uma chamada para a API.
+        UI.showFeedback('Função de salvar ainda não implementada.', 'info');
+    });
+  },
+
+  // --- Adicione a página de créditos se ela não existir ---
+  renderCreditsPage() {
+      document.title = "Créditos | Central de Checkers Pro";
+      const user = Auth.getCurrentUser();
+      const balance = (user.credits || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      this.appRoot.innerHTML = `
+      <div class="main-container">
+        <div class="content-wrapper cyber-fade-in" style="max-width: 600px;">
+          <div class="main-card cyber-card">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon cyber-icon"><i class="fas fa-coins"></i><div class="icon-pulse"></div></div>
+                    <h1 class="logo-text cyber-title">Adicionar Créditos</h1>
+                </div>
+                <p class="subtitle terminal-text">Seu saldo atual é: <span class="cyber-text">${balance}</span></p>
+            </div>
+            
+            <div class="cyber-info-panel">
+                <p class="terminal-text">Para adicionar créditos à sua conta, entre em contato com o suporte ou utilize um dos métodos abaixo.</p>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary cyber-btn" onclick="alert('Função não implementada')"><i class="fab fa-pix"></i> Adicionar via PIX</button>
+            </div>
+
+            <div class="text-center mt-4">
+              <a href="#dashboard" class="link cyber-link">Voltar para o Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+  }
 };
 
 window.UI = UI;
