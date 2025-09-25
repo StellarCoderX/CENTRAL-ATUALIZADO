@@ -1201,3 +1201,32 @@ body {
   color: var(--bg-primary);
   text-shadow: none;
 }
+
+/* --- INÍCIO DA MODIFICAÇÃO: POSIÇÃO E ANIMAÇÃO DO FEEDBACK --- */
+
+.feedback-container {
+  position: fixed; /* Fixa a notificação na tela, mesmo com rolagem */
+  top: 30px; /* Distância do topo */
+  left: 50%; /* Move o início do container para o meio da tela */
+  transform: translateX(-50%); /* Ajusta o centro do container ao centro da tela */
+  z-index: 9999; /* Garante que a notificação fique sobre todos os outros elementos */
+  width: 90%;
+  max-width: 500px;
+  pointer-events: none; /* Permite clicar nos elementos que estão atrás do container */
+}
+
+/* Estado inicial do alerta (antes de aparecer) */
+.feedback {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: auto; /* Permite que o alerta receba cliques, se necessário */
+}
+
+/* Estado final do alerta (quando a classe 'visible' é adicionada via JS) */
+.feedback.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- FIM DA MODIFICAÇÃO --- */
