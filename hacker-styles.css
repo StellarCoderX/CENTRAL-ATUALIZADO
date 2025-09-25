@@ -1229,4 +1229,14 @@ body {
   transform: translateY(0);
 }
 
+/* --- INÍCIO DA MODIFICAÇÃO: ESTILO PARA STATUS OFFLINE --- */
+.status-indicator.offline {
+  background: var(--danger);
+  box-shadow: 0 0 10px var(--danger);
+}
+.status-text.offline {
+  color: var(--danger);
+  font-weight: 600;
+  text-shadow: 0 0 5px var(--danger);
+}
 /* --- FIM DA MODIFICAÇÃO --- */
