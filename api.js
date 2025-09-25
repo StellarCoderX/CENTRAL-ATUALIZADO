@@ -1,5 +1,3 @@
-const API_BASE_URL = "/api/auth";
-
 async function request(endpoint, method = "POST", body = null) {
   const headers = {
     "Content-Type": "application/json",
@@ -30,17 +28,21 @@ async function request(endpoint, method = "POST", body = null) {
     return responseData;
   } catch (error) {
     console.error("Erro na API:", error);
+
+    // --- INÍCIO DA MODIFICAÇÃO: MENSAGENS CUSTOMIZADAS ---
+    let displayMessage = error.message; // Pega a mensagem de erro original
+
+    if (error.message === "Invalid login credentials") {
+      displayMessage = "LOGIN INVÁLIDO"; // Troca a mensagem de login
+    } else if (error.message === "Email not confirmed") {
+      displayMessage = "Para poder entrar você precisa verificar seu EMAIL"; // Troca a mensagem de email não confirmado
+    }
+    // --- FIM DA MODIFICAÇÃO ---
+
     if (window.UI && typeof window.UI.showFeedback === "function") {
-      window.UI.showFeedback(error.message, "error");
+      // Exibe a mensagem (original ou modificada)
+      window.UI.showFeedback(displayMessage, "error");
     }
     throw error;
   }
 }
-
-const API = {
-  login: (email, password) => request("login", "POST", { email, password }),
-  register: (username, email, password) =>
-    request("register", "POST", { username, email, password }),
-};
-
-export default API;
