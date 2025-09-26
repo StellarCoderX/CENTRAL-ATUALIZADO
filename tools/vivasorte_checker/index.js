@@ -86,6 +86,74 @@ function initSimplifiedLogic() {
   const aprovadasResults = document.getElementById('aprovadas-results');
   const reprovadasResults = document.getElementById('reprovadas-results');
 
+  // Variável para controlar o intervalo de verificação de status
+  let statusInterval;
+
+  // Função para limpar tudo e parar a verificação
+  function stopChecking() {
+    clearInterval(statusInterval);
+    submitBtn.disabled = false;
+    submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+  }
+
+  // Função para mostrar os resultados finais na tela
+  function displayResults(results) {
+    const aprovadas = results.Aprovadas || [];
+    const reprovadas = results.Reprovadas || [];
+
+    aprovadasCount.textContent = aprovadas.length;
+    reprovadasCount.textContent = reprovadas.length;
+
+    aprovadas.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'result-item aprovada';
+      div.textContent = item;
+      aprovadasResults.appendChild(div);
+    });
+
+    reprovadas.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'result-item reprovada';
+      div.textContent = item;
+      reprovadasResults.appendChild(div);
+    });
+  }
+
+  // Função que fica verificando o status da tarefa a cada 3 segundos
+  async function checkStatus(jobId) {
+    try {
+      // ATENÇÃO: A URL para verificação de status precisa existir no seu backend
+      // e o proxy precisa ser configurado para ela.
+      // Assumindo que o backend tem um endpoint /api/vivasorte/status/:jobId
+      const response = await fetch(`/api/vivasorte/status/${jobId}`);
+      
+      if (!response.ok) {
+        // Se a verificação de status der erro, paramos.
+        errorMessage.textContent = 'Erro ao verificar o status do processamento.';
+        stopChecking();
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'completed') {
+        // SUCESSO! A tarefa terminou.
+        statusMessage.textContent = 'Processamento concluído!';
+        displayResults(data.results);
+        stopChecking();
+      } else if (data.status === 'error') {
+        errorMessage.textContent = `Erro no processamento: ${data.message}`;
+        stopChecking();
+      }
+      // Se o status for 'processing', não fazemos nada e esperamos a próxima verificação.
+
+    } catch (err) {
+      errorMessage.textContent = `Erro de conexão ao verificar status: ${err.message}`;
+      stopChecking();
+    }
+  }
+
+  // Evento de submit do formulário
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const file = fileInput.files[0];
@@ -95,21 +163,23 @@ function initSimplifiedLogic() {
       return;
     }
 
+    // Limpa a tela antes de um novo envio
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
-    statusMessage.textContent = 'Enviando e processando...';
+    statusMessage.textContent = 'Enviando arquivo...';
     submitBtn.disabled = true;
-    submitBtn.querySelector('.btn-text').textContent = 'Verificando...';
+    submitBtn.querySelector('.btn-text').textContent = 'Enviando...';
     aprovadasResults.innerHTML = '';
     reprovadasResults.innerHTML = '';
     aprovadasCount.textContent = '0';
     reprovadasCount.textContent = '0';
+    if(statusInterval) clearInterval(statusInterval);
 
     const formData = new FormData();
     formData.append('txtFile', file);
 
     try {
-      // A chamada é feita para a API da Vercel, que redireciona para o seu servidor de forma segura
+      // PASSO 1: Enviar o arquivo
       const response = await fetch("/api/tools/vivasorte_checker", {
         method: 'POST',
         body: formData,
@@ -121,34 +191,23 @@ function initSimplifiedLogic() {
       }
       
       const data = await response.json();
-      statusMessage.textContent = 'Processamento concluído!';
-      
-      const aprovadas = data.Aprovadas || [];
-      const reprovadas = data.Reprovadas || [];
 
-      aprovadasCount.textContent = aprovadas.length;
-      reprovadasCount.textContent = reprovadas.length;
-
-      aprovadas.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'result-item aprovada';
-        div.textContent = item;
-        aprovadasResults.appendChild(div);
-      });
-
-      reprovadas.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'result-item reprovada';
-        div.textContent = item;
-        reprovadasResults.appendChild(div);
-      });
+      // PASSO 2: Receber a resposta imediata ("ok" com jobId)
+      if (data.jobId) {
+        // ESTA É A MUDANÇA QUE VOCÊ PEDIU
+        statusMessage.textContent = 'DB enviada com sucesso! Processando em segundo plano...';
+        submitBtn.querySelector('.btn-text').textContent = 'Processando...';
+        
+        // PASSO 3: Começar a verificar o status a cada 3 segundos
+        statusInterval = setInterval(() => checkStatus(data.jobId), 3000);
+      } else {
+        throw new Error("Resposta do servidor não continha um ID de tarefa (jobId).");
+      }
 
     } catch (err) {
       errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+      stopChecking();
     }
   });
 }
