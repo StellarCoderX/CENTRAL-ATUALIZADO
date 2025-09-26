@@ -24,6 +24,8 @@ export default async function handler(request, response) {
           'Content-Type': request.headers['content-type'],
         },
         body: file,
+        // CORREÇÃO: Adicionar a opção duplex para streams no body
+        duplex: 'half',
       })
       .then(apiResponse => {
         return apiResponse.json().then(data => ({ status: apiResponse.status, body: data }));
