@@ -170,13 +170,16 @@ const UI = {
                             <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
-                    <a href="#" class="tool-card cyber-tool-card">
+                    <a href="#vivasorte-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-star"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                            {/* Você pode mudar para 'online' se a API já estiver pronta */}
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
+                    </a>
+                </div>
                     </a>
 
                 </div>
@@ -344,5 +347,6 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
