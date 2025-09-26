@@ -1,7 +1,6 @@
-// /api/tools/vivasorte_checker.js (Código Final)
+// /api/tools/vivasorte_checker.js (Versão Final Corrigida)
 
-// Importa a biblioteca 'node-fetch' para garantir que a chamada fetch funcione no ambiente de servidor
-import fetch from 'node-fetch';
+// A LINHA "import fetch from 'node-fetch';" FOI REMOVIDA DAQUI.
 
 export default async function handler(request, response) {
   // Aceita apenas o método POST
@@ -11,6 +10,7 @@ export default async function handler(request, response) {
 
   try {
     // Reencaminha a requisição (com o ficheiro .txt) para o seu servidor final
+    // A função 'fetch' é nativa no ambiente da Vercel e não precisa de importação
     const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
       method: 'POST',
       headers: {
@@ -25,6 +25,8 @@ export default async function handler(request, response) {
 
     // Se o seu servidor retornou um erro, envia esse erro de volta para o frontend
     if (!apiResponse.ok) {
+      // Devolve a mensagem de erro vinda do seu servidor para depuração
+      console.error("Erro retornado pelo backend principal:", responseData);
       return response.status(apiResponse.status).json(responseData);
     }
 
@@ -34,6 +36,6 @@ export default async function handler(request, response) {
   } catch (error) {
     // Se ocorrer um erro nesta função, reporta-o
     console.error('Erro na função serverless da Vercel:', error);
-    response.status(500).json({ success: false, message: 'Erro interno no servidor da Vercel.' });
+    response.status(500).json({ success: false, message: 'Erro interno no servidor da Vercel: ' + error.message });
   }
 }
