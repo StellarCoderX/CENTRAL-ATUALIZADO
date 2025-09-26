@@ -110,7 +110,7 @@ function initSimplifiedLogic() {
     formData.append('txtFile', file); // Adiciona o arquivo ao formulário
 
     try {
-      const response = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
+      const response = await fetch("/api/tools/vivasorte_checker", {
         method: 'POST',
         body: formData,
       });
@@ -153,4 +153,5 @@ function initSimplifiedLogic() {
     }
   });
 }
+
 
