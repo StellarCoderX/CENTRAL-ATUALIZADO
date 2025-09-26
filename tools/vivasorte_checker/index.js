@@ -1,13 +1,10 @@
 // /tools/vivasorte_checker/index.js
 
-// A função 'render' é a porta de entrada que o ui.js irá chamar.
 export function render(appRoot) {
   document.title = "Checker Vivasorte | Central de Checkers Pro";
 
-  // Injeta o HTML da página na div principal
   appRoot.innerHTML = `
     <style>
-      /* Estilos básicos para a página do checker */
       .checker-container { max-width: 900px; margin: 20px auto; color: #00ff41; }
       .form-section, .results-section, .stats-section { margin-bottom: 20px; }
       .custom-textarea { width: 100%; min-height: 150px; background-color: rgba(0, 20, 0, 0.9); border: 2px solid var(--primary); color: #00ff41; padding: 10px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; }
@@ -20,7 +17,7 @@ export function render(appRoot) {
       .stat-title { font-size: 0.8em; text-transform: uppercase; color: var(--text-secondary); }
       .stat-value { font-size: 1.5em; font-weight: bold; }
       #status-message { margin-top: 15px; padding: 10px; background: rgba(0, 20, 0, 0.9); border-radius: 5px; text-align: center; }
-      #error-message { color: #ff0040; margin-top: 10px; }
+      #error-message { color: #ff0040; margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
     </style>
 
     <div class="checker-container cyber-fade-in">
@@ -77,12 +74,12 @@ export function render(appRoot) {
 
         <div class="results-section">
           <h3 class="cyber-text">Resultados</h3>
-          <div class="row">
-            <div class="col-md-6">
+          <div class="row" style="display: flex; gap: 15px;">
+            <div class="col-md-6" style="flex: 1;">
               <h4>Aprovadas</h4>
               <div id="aprovadas-results" class="results-area"></div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" style="flex: 1;">
               <h4>Reprovadas</h4>
               <div id="reprovadas-results" class="results-area"></div>
             </div>
@@ -92,11 +89,9 @@ export function render(appRoot) {
     </div>
   `;
 
-  // Adiciona a lógica de eventos após o HTML ser renderizado
   initLogic();
 }
 
-// Função para conter toda a lógica de eventos
 function initLogic() {
   const form = document.getElementById('vivasorte-form');
   const fileInput = document.getElementById('file-upload');
@@ -117,7 +112,6 @@ function initLogic() {
       return;
     }
 
-    // Limpa estados anteriores
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
     statusMessage.textContent = 'Enviando arquivo e processando...';
@@ -131,7 +125,6 @@ function initLogic() {
     const formData = new FormData();
     formData.append('txtFile', file);
 
-    // Adiciona dados do proxy se existirem
     const proxyHostPort = document.getElementById('proxy-host').value.split(':');
     if (proxyHostPort.length === 2) {
         formData.append('proxy_host', proxyHostPort[0]);
@@ -146,15 +139,21 @@ function initLogic() {
         body: formData,
       });
 
-      const data = await response.json();
-
+      // --- INÍCIO DA CORREÇÃO ---
+      // 1. VERIFICA SE A RESPOSTA FOI OK (status 200-299)
       if (!response.ok) {
-        throw new Error(data.message || 'Ocorreu um erro desconhecido.');
+        // Se não foi OK, tenta ler o corpo como texto para ver o erro do servidor
+        const errorText = await response.text();
+        // Lança um erro com a mensagem do servidor, que será pego pelo bloco catch
+        throw new Error(`Erro do servidor: ${response.status} - ${errorText}`);
       }
+      
+      // 2. SÓ TENTA LER COMO JSON SE A RESPOSTA FOI OK
+      const data = await response.json();
+      // --- FIM DA CORREÇÃO ---
       
       statusMessage.textContent = 'Processamento concluído!';
       
-      // Exibe os resultados
       const aprovadas = data.Aprovadas || [];
       const reprovadas = data.Reprovadas || [];
 
@@ -176,7 +175,8 @@ function initLogic() {
       });
 
     } catch (err) {
-      errorMessage.textContent = `Erro: ${err.message}`;
+      // Agora o 'err.message' conterá uma mensagem muito mais útil
+      errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
     } finally {
       submitBtn.disabled = false;
