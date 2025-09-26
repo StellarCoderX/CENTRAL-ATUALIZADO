@@ -8,8 +8,9 @@ const App = {
     "#dashboard": UI.renderDashboardPage,
     "#profile": UI.renderProfilePage,
     "#credits": UI.renderCreditsPage,
+    "#shein-checker": UI.renderToolPage,
   },
-  protectedRoutes: ["#dashboard", "#profile", "#credits"],
+  protectedRoutes: ["#dashboard", "#profile", "#credits", "#shein-checker"],
 
   init() {
     window.addEventListener("hashchange", this.handleRoute.bind(this));
@@ -43,3 +44,4 @@ const App = {
 App.init();
 
 export default App;
+
