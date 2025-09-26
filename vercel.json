@@ -5,6 +5,6 @@
       "source": "/api/auth/:path*",
       "destination": "http://72.60.143.32:3010/api/auth/:path*"
     }
-    // A REGRA PARA /api/tools/ FOI REMOVIDA DAQUI
   ]
 }
+
