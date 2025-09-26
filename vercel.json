@@ -3,6 +3,11 @@
     {
       "source": "/api/auth/:path*",
       "destination": "http://72.60.143.32:3010/api/auth/:path*"
+    },
+  
+    {
+      "source": "/api/tools/:path*",
+      "destination": "http://72.60.143.32:3010/api/tools/:path*"
     }
   ]
 }
