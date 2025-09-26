@@ -73,7 +73,7 @@ export function render(appRoot) {
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-12"> {/* <-- ALTERADO DE col-lg-8 PARA col-lg-12 */}
+            <div class="col-lg-12"> 
                 <div class="input-area">
                     <h5 class="mb-3"><i class="fas fa-list"></i> Lista de Contas (Email|Senha)</h5>
                     <textarea id="lista_contas" class="custom-textarea" placeholder="Insira suas contas no formato:\\nemail@exemplo.com|senha123\\noutro@email.com|minhasenha\\n\\nUma conta por linha..." rows="12"></textarea>
@@ -324,6 +324,7 @@ function initCheckerLogic() {
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
+
 
 
 
