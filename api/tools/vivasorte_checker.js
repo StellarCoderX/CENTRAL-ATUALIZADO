@@ -1,5 +1,15 @@
 // /api/tools/vivasorte_checker.js
 
+import { promises as fs } from 'fs';
+import formidable from 'formidable';
+
+// Desativa o 'body parser' padrão da API do Next.js.
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 // Backend para a ferramenta Vivasorte
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -7,35 +17,53 @@ export default async function handler(request, response) {
   }
 
   try {
-    const { lista, proxy_host, proxy_port, proxy_user, proxy_pass } =
-      request.body;
+    const data = await new Promise((resolve, reject) => {
+      const form = formidable({});
+      form.parse(request, (err, fields, files) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve({ fields, files });
+      });
+    });
+
+    const { proxy_host, proxy_port, proxy_user, proxy_pass } = data.fields;
+    const uploadedFile = data.files.txtFile;
+
+    if (!uploadedFile || uploadedFile.length === 0) {
+      return response
+        .status(400)
+        .json({ success: false, message: 'Nenhum arquivo foi enviado no campo "txtFile".' });
+    }
+
+    const filePath = uploadedFile[0].filepath;
+    const lista = await fs.readFile(filePath, 'utf8');
 
     if (!lista) {
       return response
         .status(400)
-        .json({ success: false, message: 'Parâmetro "lista" não fornecido.' });
+        .json({ success: false, message: 'O arquivo enviado está vazio.' });
     }
 
-    // --- ATENÇÃO: SUBSTITUA PELA URL CORRETA DA API VIVASORTE ---
-    let targetUrl = `https://URL_DA_SUA_API_VIVASORTE.com/api/login?lista=${encodeURIComponent(
+    // --- URL ATUALIZADA AQUI ---
+    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db?lista=${encodeURIComponent(
       lista
     )}`;
-    // -----------------------------------------------------------------
+    // -------------------------
 
     if (proxy_host && proxy_port) {
-      targetUrl += `&proxy_host=${encodeURIComponent(proxy_host)}`;
-      targetUrl += `&proxy_port=${encodeURIComponent(proxy_port)}`;
-      if (proxy_user) {
-        targetUrl += `&proxy_user=${encodeURIComponent(proxy_user)}`;
+      targetUrl += `&proxy_host=${encodeURIComponent(proxy_host[0])}`;
+      targetUrl += `&proxy_port=${encodeURIComponent(proxy_port[0])}`;
+      if (proxy_user && proxy_user[0]) {
+        targetUrl += `&proxy_user=${encodeURIComponent(proxy_user[0])}`;
       }
-      if (proxy_pass) {
-        targetUrl += `&proxy_pass=${encodeURIComponent(proxy_pass)}`;
+      if (proxy_pass && proxy_pass[0]) {
+        targetUrl += `&proxy_pass=${encodeURIComponent(proxy_pass[0])}`;
       }
     }
 
     const apiResponse = await fetch(targetUrl, {
       method: "GET",
-      timeout: 98000,
     });
 
     if (!apiResponse.ok) {
@@ -45,8 +73,9 @@ export default async function handler(request, response) {
       );
     }
 
-    const data = await apiResponse.json();
-    response.status(200).json(data);
+    const responseData = await apiResponse.json();
+    response.status(200).json(responseData);
+
   } catch (error) {
     console.error("Erro no servidor Vivasorte:", error);
     response.status(500).json({
