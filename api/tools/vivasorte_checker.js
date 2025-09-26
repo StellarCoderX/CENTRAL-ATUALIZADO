@@ -1,39 +1,39 @@
-// /api/tools/shein_checker.js (Versão Simplificada sem Proxy)
+// /api/tools/vivasorte_checker.js (Código Final)
+
+// Importa a biblioteca 'node-fetch' para garantir que a chamada fetch funcione no ambiente de servidor
+import fetch from 'node-fetch';
 
 export default async function handler(request, response) {
-  // Apenas permite requisições do tipo POST
+  // Aceita apenas o método POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Método não permitido' });
   }
 
   try {
-    // Pega apenas a 'lista' do corpo da requisição
-    const { lista } = request.body;
-
-    if (!lista) {
-      return response.status(400).json({ success: false, message: 'Parâmetro "lista" não fornecido.' });
-    }
-
-    // Monta a URL da API externa sem nenhum parâmetro de proxy
-    let targetUrl = `https://shein-apil-production.up.railway.app/api/login?lista=${encodeURIComponent(lista)}`;
-
-    // Faz a chamada para a API externa
-    const apiResponse = await fetch(targetUrl, {
-      method: 'GET',
-      timeout: 98000, // Timeout em milissegundos
+    // Reencaminha a requisição (com o ficheiro .txt) para o seu servidor final
+    const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
+      method: 'POST',
+      headers: {
+        // Passa os cabeçalhos originais, importantes para o envio de ficheiros
+        'Content-Type': request.headers['content-type'],
+      },
+      body: request.body, // Reencaminha o corpo da requisição (o ficheiro)
     });
 
+    // Lê a resposta do seu servidor
+    const responseData = await apiResponse.json();
+
+    // Se o seu servidor retornou um erro, envia esse erro de volta para o frontend
     if (!apiResponse.ok) {
-      const errorBody = await apiResponse.text();
-      throw new Error(`Erro na API externa: ${apiResponse.status} ${apiResponse.statusText} - ${errorBody}`);
+      return response.status(apiResponse.status).json(responseData);
     }
 
-    // Envia a resposta da API externa de volta para o seu frontend
-    const data = await apiResponse.json();
-    response.status(200).json(data);
+    // Se tudo correu bem, envia a resposta de sucesso para o frontend
+    response.status(200).json(responseData);
 
   } catch (error) {
-    console.error('Erro no servidor:', error);
-    response.status(500).json({ success: false, message: 'Erro interno no servidor: ' + error.message });
+    // Se ocorrer um erro nesta função, reporta-o
+    console.error('Erro na função serverless da Vercel:', error);
+    response.status(500).json({ success: false, message: 'Erro interno no servidor da Vercel.' });
   }
 }
