@@ -184,6 +184,27 @@ const UI = {
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
   },
 
+  // --- NOVA FUNÇÃO GENÉRICA PARA CARREGAR FERRAMENTAS ---
+  async renderToolPage() {
+    const hash = window.location.hash.substring(1); // Ex: "shein-checker"
+    const toolName = hash.replace('-checker', ''); // Ex: "shein"
+
+    try {
+      // Carrega o módulo da ferramenta dinamicamente
+      const toolModule = await import(`../tools/${toolName}_checker/index.js`);
+      
+      // Chama a função 'render' exportada pelo módulo
+      if (toolModule && typeof toolModule.render === 'function') {
+        toolModule.render(this.appRoot);
+      } else {
+        throw new Error(`O módulo da ferramenta ${toolName} não foi encontrado ou não tem a função render.`);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar a ferramenta:", error);
+      this.appRoot.innerHTML = `<p style="color: red; text-align: center;">Não foi possível carregar a ferramenta.</p>`;
+    }
+  },
+
   // --- FUNÇÃO DE PERFIL ATUALIZADA ---
   renderProfilePage() {
     document.title = "Meu Perfil | Central de Checkers Pro";
@@ -337,5 +358,6 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
