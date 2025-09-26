@@ -108,7 +108,6 @@ const UI = {
     });
   },
 
-  // --- FUNÇÃO DO DASHBOARD ATUALIZADA ---
   async renderDashboardPage() {
     document.title = "Dashboard | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
@@ -117,7 +116,6 @@ const UI = {
       return;
     }
 
-    // Formatando os créditos do usuário para o formato de moeda BRL (R$)
     const balance = (user.credits || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     this.appRoot.innerHTML = `
@@ -177,7 +175,7 @@ const UI = {
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
   },
 
-  // --- NOVA FUNÇÃO PARA A PÁGINA DE PERFIL ---
+  // --- FUNÇÃO DE PERFIL ATUALIZADA ---
   renderProfilePage() {
     document.title = "Meu Perfil | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
@@ -196,11 +194,11 @@ const UI = {
             <form id="profileForm">
               <div class="form-group text-center">
                   <label class="form-label cyber-label">Foto de Perfil</label>
-                  <div class="user-avatar cyber-glow" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--accent));">
-                      ${user.avatarUrl ? `<img src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%;">` : (user.username ? user.username.charAt(0).toUpperCase() : 'U')}
+                  <div id="avatar-container" class="user-avatar cyber-glow" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--accent)); cursor: pointer;">
+                      ${user.avatarUrl ? `<img id="avatar-preview" src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%; object-fit: cover;">` : `<span id="avatar-initials">${user.username ? user.username.charAt(0).toUpperCase() : 'U'}</span>`}
                   </div>
-                  <input type="file" id="avatarUpload" class="cyber-input" accept="image/*" style="padding: 0.5rem;">
-                  <p class="terminal-text" style="font-size: 0.8rem; margin-top: 0.5rem;">Envie uma imagem para seu avatar.</p>
+                  <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                  <p class="terminal-text" style="font-size: 0.8rem; margin-top: 0.5rem;">Clique na imagem para selecionar um novo avatar.</p>
               </div>
 
               <hr class="cyber-divider">
@@ -231,15 +229,67 @@ const UI = {
       </div>
     `;
 
-    document.getElementById('profileForm').addEventListener('submit', (e) => {
+    // --- LÓGICA DE UPLOAD ADICIONADA AQUI ---
+    const avatarContainer = document.getElementById('avatar-container');
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    
+    // Abrir o seletor de arquivos ao clicar no avatar
+    avatarContainer.addEventListener('click', () => {
+      avatarUploadInput.click();
+    });
+
+    // Mostrar pré-visualização da imagem selecionada
+    avatarUploadInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Remove as iniciais se existirem
+            const initials = document.getElementById('avatar-initials');
+            if(initials) initials.remove();
+
+            let preview = document.getElementById('avatar-preview');
+            if(!preview) {
+                preview = document.createElement('img');
+                preview.id = 'avatar-preview';
+                preview.style.cssText = "width:100%; height:100%; border-radius: 50%; object-fit: cover;";
+                avatarContainer.appendChild(preview);
+            }
+          preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Lidar com o envio do formulário
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        // A lógica para salvar as alterações no servidor precisaria ser implementada aqui,
-        // envolvendo uma chamada para a API.
-        UI.showFeedback('Função de salvar ainda não implementada.', 'info');
+        const file = avatarUploadInput.files[0];
+
+        if (file) {
+            UI.showFeedback('Enviando nova foto de perfil...', 'info');
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            try {
+                const response = await API.uploadAvatar(formData);
+                if (response.avatarUrl) {
+                    Auth.updateCurrentUser({ avatarUrl: response.avatarUrl });
+                    UI.showFeedback('Foto de perfil atualizada com sucesso!', 'success');
+                }
+            } catch (error) {
+                console.error("Erro ao enviar avatar:", error);
+            }
+        }
+        
+        // Lógica para salvar a senha (ainda não implementada)
+        const newPassword = document.getElementById('newPassword').value;
+        if(newPassword){
+            UI.showFeedback('Função de alterar senha ainda não implementada.', 'info');
+        }
     });
   },
 
-  // --- Adicione a página de créditos se ela não existir ---
   renderCreditsPage() {
       document.title = "Créditos | Central de Checkers Pro";
       const user = Auth.getCurrentUser();
