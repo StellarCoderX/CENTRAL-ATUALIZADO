@@ -1,13 +1,14 @@
 const API_BASE_URL = "/api/auth";
 
-async function request(endpoint, method = "POST", body = null) {
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
+async function request(endpoint, method = "POST", body = null, isFormData = false) {
+  const headers = {};
   const token = localStorage.getItem("accessToken");
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
   }
 
   const config = {
@@ -16,7 +17,7 @@ async function request(endpoint, method = "POST", body = null) {
   };
 
   if (body) {
-    config.body = JSON.stringify(body);
+    config.body = isFormData ? body : JSON.stringify(body);
   }
 
   try {
@@ -50,6 +51,9 @@ const API = {
   login: (email, password) => request("login", "POST", { email, password }),
   register: (username, email, password) =>
     request("register", "POST", { username, email, password }),
+  
+  // --- NOVA FUNÇÃO ADICIONADA AQUI ---
+  uploadAvatar: (formData) => request("upload-avatar", "POST", formData, true),
 };
 
 export default API;
