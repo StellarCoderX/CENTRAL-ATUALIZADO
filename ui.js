@@ -173,7 +173,7 @@ const UI = {
                     <a href="#" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-star"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
-                        <p class="tool-desc terminal-text">Verificador de contas Vivasorte.</p>
+                        <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
@@ -337,4 +337,5 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
