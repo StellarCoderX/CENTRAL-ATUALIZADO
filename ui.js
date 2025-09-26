@@ -178,7 +178,6 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                    {/* --- FIM DA CORREÇÃO --- */}
 
                 </div>
             </main>
@@ -345,4 +344,5 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
