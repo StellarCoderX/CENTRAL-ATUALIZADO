@@ -46,7 +46,7 @@ export default async function handler(request, response) {
     }
 
     // --- URL ATUALIZADA AQUI ---
-    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db?lista=${encodeURIComponent(
+    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db${encodeURIComponent(
       lista
     )}`;
     // -------------------------
@@ -84,3 +84,4 @@ export default async function handler(request, response) {
     });
   }
 }
+
