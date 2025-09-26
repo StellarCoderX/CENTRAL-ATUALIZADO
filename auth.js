@@ -31,6 +31,7 @@ function loadUserFromToken() {
         email: payload.email,
         username: payload.user_metadata?.username || "Usuário", // Pega o username de dentro do user_metadata
         credits: payload.user_metadata?.credits || 0, // Assume 0 se não houver créditos no token
+        avatarUrl: payload.user_metadata?.avatarUrl || null, // Carrega o avatarUrl
       };
     } catch (e) {
       console.error("Token inválido. Limpando...", e);
@@ -66,23 +67,20 @@ const Auth = {
     try {
       const responseData = await API.login(email, password);
       
-      // --- MODIFICAÇÃO PRINCIPAL AQUI ---
-      // Procuramos por 'token' em vez de 'accessToken'
       if (responseData.token) {
         const token = responseData.token;
         localStorage.setItem("accessToken", token);
 
-        // Decodificamos o token para obter os dados do usuário
         const payload = parseJwt(token);
         if (payload) {
              currentUser = {
                 uid: payload.sub,
                 email: payload.email,
                 username: payload.user_metadata?.username || "Usuário",
-                credits: payload.user_metadata?.credits || 0, // Assumimos 0 créditos por padrão
+                credits: payload.user_metadata?.credits || 0,
+                avatarUrl: payload.user_metadata?.avatarUrl || null,
              };
         }
-        // --- FIM DA MODIFICAÇÃO ---
 
         window.UI.showFeedback(
           "Login realizado! Redirecionando...",
@@ -110,6 +108,15 @@ const Auth = {
   isAuthenticated: () => !!currentUser,
 
   getCurrentUser: () => currentUser,
+
+  // --- NOVA FUNÇÃO ADICIONADA AQUI ---
+  updateCurrentUser(data) {
+      if(currentUser) {
+          currentUser = { ...currentUser, ...data };
+      }
+      // Você pode querer disparar um evento aqui para atualizar a UI em outros lugares
+      // window.dispatchEvent(new Event("userupdated"));
+  },
 
   init() {
     loadUserFromToken();
