@@ -83,7 +83,6 @@ export function render(appRoot) {
                     <textarea id="proxy_list" class="custom-textarea" placeholder="Insira seus proxies (um por linha)...\\nDEIXE VAZIO para usar IP LOCAL." rows="8"></textarea>
                 </div>
             </div>
-            {/* A COLUNA DE ESTATÍSTICAS FOI REMOVIDA DAQUI */}
         </div>
         <div class="results-tabs">
              <ul class="nav nav-tabs" id="resultTabs" role="tablist">
@@ -325,5 +324,6 @@ function initCheckerLogic() {
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
+
 
 
