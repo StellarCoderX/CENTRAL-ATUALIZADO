@@ -37,30 +37,41 @@ export default async function handler(request, response) {
       return response.status(400).json({ success: false, message: 'O arquivo enviado está vazio.' });
     }
 
-    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db?lista=${encodeURIComponent(lista)}`;
+    // --- INÍCIO DA CORREÇÃO: MUDANÇA PARA POST ---
 
+    // 1. A URL de destino agora não precisa da lista
+    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db`;
+
+    // 2. Os dados a serem enviados no corpo da requisição
+    const requestBody = {
+      lista: lista, // Envia a lista de contas
+    };
+
+    // Adiciona os dados de proxy ao corpo, se existirem
     if (proxy_host && proxy_port) {
-      targetUrl += `&proxy_host=${encodeURIComponent(proxy_host[0])}`;
-      targetUrl += `&proxy_port=${encodeURIComponent(proxy_port[0])}`;
+      requestBody.proxy_host = proxy_host[0];
+      requestBody.proxy_port = proxy_port[0];
       if (proxy_user && proxy_user[0]) {
-        targetUrl += `&proxy_user=${encodeURIComponent(proxy_user[0])}`;
+        requestBody.proxy_user = proxy_user[0];
       }
       if (proxy_pass && proxy_pass[0]) {
-        targetUrl += `&proxy_pass=${encodeURIComponent(proxy_pass[0])}`;
+        requestBody.proxy_pass = proxy_pass[0];
       }
     }
 
-    // --- INÍCIO DA CORREÇÃO: ADICIONANDO TIMEOUT ---
     const controller = new AbortController();
-    // Define um tempo limite de 30 segundos. Se a API externa não responder, a requisição é cancelada.
-    const timeoutId = setTimeout(() => controller.abort(), 30000); 
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+    // 3. A chamada fetch agora é um POST
     const apiResponse = await fetch(targetUrl, {
-      method: "GET",
-      signal: controller.signal, // Associa o controlador de timeout à requisição
+      method: "POST", // Método alterado para POST
+      headers: {
+        'Content-Type': 'application/json', // Informa que estamos enviando JSON
+      },
+      body: JSON.stringify(requestBody), // Envia os dados no corpo, convertidos para string JSON
+      signal: controller.signal,
     });
 
-    // Limpa o timeout, pois a requisição foi concluída a tempo.
     clearTimeout(timeoutId);
     // --- FIM DA CORREÇÃO ---
 
@@ -73,16 +84,13 @@ export default async function handler(request, response) {
     response.status(200).json(responseData);
 
   } catch (error) {
-    // --- INÍCIO DA CORREÇÃO: CAPTURANDO O ERRO DE TIMEOUT ---
-    // Se o erro foi causado pelo cancelamento (timeout), envia uma mensagem específica.
     if (error.name === 'AbortError') {
       console.error("Fetch para API externa excedeu o tempo limite:", error);
-      return response.status(504).json({ // 504 Gateway Timeout
+      return response.status(504).json({
         success: false,
-        message: "Erro: A API externa demorou muito para responder (Timeout). Tente novamente mais tarde.",
+        message: "Erro: A API externa demorou muito para responder (Timeout).",
       });
     }
-    // --- FIM DA CORREÇÃO ---
 
     console.error("Erro no servidor Vivasorte:", error);
     response.status(500).json({
