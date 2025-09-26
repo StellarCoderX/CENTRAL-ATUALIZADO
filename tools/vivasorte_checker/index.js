@@ -90,8 +90,16 @@ function initSimplifiedLogic() {
     event.preventDefault();
     const file = fileInput.files[0];
 
+    // Validação 1: Verifica se um ficheiro foi selecionado
     if (!file) {
       errorMessage.textContent = 'Por favor, selecione um arquivo .txt.';
+      return;
+    }
+
+    // NOVA VALIDAÇÃO: Verifica se o ficheiro termina com .txt (ignora maiúsculas/minúsculas)
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+      errorMessage.textContent = 'Erro: Apenas arquivos .txt são permitidos.';
+      fileInput.value = ''; // Limpa o campo de ficheiro para forçar o utilizador a escolher novamente
       return;
     }
 
@@ -116,12 +124,10 @@ function initSimplifiedLogic() {
       });
 
       if (!response.ok) {
-        // Se a resposta não for 'ok' (ex: erro 502), o código vai para o 'catch'
         const errorText = await response.text();
-        throw new Error(errorText); // Lança o erro para ser pego pelo 'catch'
+        throw new Error(errorText);
       }
       
-      // Este trecho só será executado se o backend retornar um JSON válido (o que não está a acontecer)
       const data = await response.json();
       statusMessage.textContent = 'Processamento concluído!';
       
@@ -146,31 +152,22 @@ function initSimplifiedLogic() {
       });
 
     } catch (err) {
-      // ESTE É O BLOCO MAIS IMPORTANTE AGORA
       try {
-        // Tenta converter a mensagem de erro (que é um JSON) para um objeto
         const errorData = JSON.parse(err.message);
-
-        // AQUI ESTÁ A LÓGICA QUE VOCÊ PEDIU
         if (errorData.backendResponse === 'ok') {
-          // Se a resposta do backend foi "ok", mostramos a mensagem de sucesso
           statusMessage.textContent = 'DB foi enviada com sucesso!';
-          errorMessage.textContent = ''; // Limpa a mensagem de erro
+          errorMessage.textContent = '';
         } else {
-          // Se for qualquer outro erro JSON, mostramos a mensagem
           errorMessage.textContent = errorData.message || err.message;
           statusMessage.style.display = 'none';
         }
       } catch (e) {
-        // Se o erro não for um JSON (um erro de rede, por exemplo), mostramos o erro original
         errorMessage.textContent = err.message;
         statusMessage.style.display = 'none';
       } finally {
-        // Independentemente do resultado, reativamos o botão
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Verificar';
       }
     }
   });
 }
-
