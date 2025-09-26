@@ -1,33 +1,39 @@
-// /api/tools/vivasorte_checker.js
+// /api/tools/shein_checker.js (Versão Simplificada sem Proxy)
 
 export default async function handler(request, response) {
+  // Apenas permite requisições do tipo POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Método não permitido' });
   }
 
   try {
-    // A Vercel já faz o parse de `FormData` para si.
-    // O corpo da requisição (request.body) já contém os dados do arquivo.
-    // Aqui, estamos a reencaminhar o corpo inteiro para o seu backend principal.
-    const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
-      method: 'POST',
-      headers: {
-        // O tipo de conteúdo é tratado pelo `FormData` e `fetch`
-        // Não defina 'Content-Type' manualmente aqui para deixar o browser fazê-lo
-      },
-      body: request.body,
+    // Pega apenas a 'lista' do corpo da requisição
+    const { lista } = request.body;
+
+    if (!lista) {
+      return response.status(400).json({ success: false, message: 'Parâmetro "lista" não fornecido.' });
+    }
+
+    // Monta a URL da API externa sem nenhum parâmetro de proxy
+    let targetUrl = `https://shein-apil-production.up.railway.app/api/login?lista=${encodeURIComponent(lista)}`;
+
+    // Faz a chamada para a API externa
+    const apiResponse = await fetch(targetUrl, {
+      method: 'GET',
+      timeout: 98000, // Timeout em milissegundos
     });
 
     if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      throw new Error(`Erro do servidor backend: ${apiResponse.status} - ${errorText}`);
+      const errorBody = await apiResponse.text();
+      throw new Error(`Erro na API externa: ${apiResponse.status} ${apiResponse.statusText} - ${errorBody}`);
     }
 
+    // Envia a resposta da API externa de volta para o seu frontend
     const data = await apiResponse.json();
     response.status(200).json(data);
 
   } catch (error) {
-    console.error('Erro no servidor Vercel:', error);
+    console.error('Erro no servidor:', error);
     response.status(500).json({ success: false, message: 'Erro interno no servidor: ' + error.message });
   }
 }
