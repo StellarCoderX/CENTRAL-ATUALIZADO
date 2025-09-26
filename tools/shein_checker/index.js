@@ -73,7 +73,7 @@ export function render(appRoot) {
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-12"> {/* <-- ALTERADO DE col-lg-8 PARA col-lg-12 */}
                 <div class="input-area">
                     <h5 class="mb-3"><i class="fas fa-list"></i> Lista de Contas (Email|Senha)</h5>
                     <textarea id="lista_contas" class="custom-textarea" placeholder="Insira suas contas no formato:\\nemail@exemplo.com|senha123\\noutro@email.com|minhasenha\\n\\nUma conta por linha..." rows="12"></textarea>
@@ -83,7 +83,7 @@ export function render(appRoot) {
                     <textarea id="proxy_list" class="custom-textarea" placeholder="Insira seus proxies (um por linha)...\\nDEIXE VAZIO para usar IP LOCAL." rows="8"></textarea>
                 </div>
             </div>
-            
+            {/* A COLUNA DE ESTATÍSTICAS FOI REMOVIDA DAQUI */}
         </div>
         <div class="results-tabs">
              <ul class="nav nav-tabs" id="resultTabs" role="tablist">
@@ -105,7 +105,6 @@ export function render(appRoot) {
         </div>
       </div>
     `;
-
   initCheckerLogic();
 }
 
@@ -326,4 +325,5 @@ function initCheckerLogic() {
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
+
 
