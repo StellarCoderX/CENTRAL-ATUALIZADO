@@ -161,7 +161,7 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                    <a href="#" class="tool-card cyber-tool-card">
+                    <a href="#shein-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-shield-alt"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK SHEIN</h2>
                         <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live | USE PROXY!</p>
@@ -170,7 +170,7 @@ const UI = {
                         </div>
                     </a>
 
-                    <a href="#" class="tool-card cyber-tool-card">
+                    <a href="#shein-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-star"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
@@ -358,6 +358,7 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
 
