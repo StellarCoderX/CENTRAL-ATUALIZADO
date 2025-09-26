@@ -1,14 +1,3 @@
-/**
- * /api/tools/vivasorte_checker.js (Versão Final e Robusta)
- *
- * Este script atua como um proxy seguro e eficiente.
- * 1. Não requer dependências externas (sem 'busboy').
- * 2. Transmite o arquivo diretamente (streaming), economizando memória.
- * 3. É robusto: não quebra se o servidor final retornar um texto que não seja JSON.
- */
-
-// Configuração para a Vercel: Desabilita o processador de corpo automático.
-// Isso nos permite receber o arquivo como um fluxo de dados (stream) e evitar a necessidade do 'busboy'.
 export const config = {
   api: {
     bodyParser: false,
@@ -71,3 +60,4 @@ export default async function handler(request, response) {
     });
   }
 }
+
