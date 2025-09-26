@@ -145,8 +145,7 @@ const UI = {
                     <p class="subtitle terminal-text">Selecione uma ferramenta para iniciar a operação.</p>
                 </div>
                 <div class="tools-grid" id="tools-grid">
-                    
-                    {/* --- LINKS CORRIGIDOS AQUI --- */}
+                  
                     <a href="#" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK CC FULL</h2>
@@ -346,3 +345,4 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
