@@ -1,6 +1,5 @@
-// /api/tools/vivasorte_checker.js (Versão Final SEM dependências)
+// /api/tools/vivasorte_checker.js (Versão Final Corrigida)
 
-// Adicione esta configuração no topo do arquivo
 export const config = {
   api: {
     bodyParser: false,
@@ -8,7 +7,6 @@ export const config = {
 };
 
 export default async function handler(request, response) {
-  // Aceita apenas o método POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Método não permitido' });
   }
@@ -17,13 +15,10 @@ export default async function handler(request, response) {
     const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
       method: 'POST',
       headers: {
-        // Ainda passamos o cabeçalho Content-Type, que é crucial
         'Content-Type': request.headers['content-type'],
       },
-      // Agora, em vez de 'request.body', passamos o 'request' inteiro.
-      // Como o bodyParser está desabilitado, 'request' age como um fluxo (stream)
-      // de dados que o fetch consegue enviar diretamente.
       body: request,
+      duplex: 'half', // <-- A CORREÇÃO ESTÁ AQUI
     });
 
     const responseData = await apiResponse.json();
