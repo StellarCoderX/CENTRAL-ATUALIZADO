@@ -175,7 +175,6 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
-                            {/* Você pode mudar para 'online' se a API já estiver pronta */}
                             <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
@@ -347,6 +346,7 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
 
