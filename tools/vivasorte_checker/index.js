@@ -86,74 +86,6 @@ function initSimplifiedLogic() {
   const aprovadasResults = document.getElementById('aprovadas-results');
   const reprovadasResults = document.getElementById('reprovadas-results');
 
-  // Variável para controlar o intervalo de verificação de status
-  let statusInterval;
-
-  // Função para limpar tudo e parar a verificação
-  function stopChecking() {
-    clearInterval(statusInterval);
-    submitBtn.disabled = false;
-    submitBtn.querySelector('.btn-text').textContent = 'Verificar';
-  }
-
-  // Função para mostrar os resultados finais na tela
-  function displayResults(results) {
-    const aprovadas = results.Aprovadas || [];
-    const reprovadas = results.Reprovadas || [];
-
-    aprovadasCount.textContent = aprovadas.length;
-    reprovadasCount.textContent = reprovadas.length;
-
-    aprovadas.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'result-item aprovada';
-      div.textContent = item;
-      aprovadasResults.appendChild(div);
-    });
-
-    reprovadas.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'result-item reprovada';
-      div.textContent = item;
-      reprovadasResults.appendChild(div);
-    });
-  }
-
-  // Função que fica verificando o status da tarefa a cada 3 segundos
-  async function checkStatus(jobId) {
-    try {
-      // ATENÇÃO: A URL para verificação de status precisa existir no seu backend
-      // e o proxy precisa ser configurado para ela.
-      // Assumindo que o backend tem um endpoint /api/vivasorte/status/:jobId
-      const response = await fetch(`/api/vivasorte/status/${jobId}`);
-      
-      if (!response.ok) {
-        // Se a verificação de status der erro, paramos.
-        errorMessage.textContent = 'Erro ao verificar o status do processamento.';
-        stopChecking();
-        return;
-      }
-
-      const data = await response.json();
-
-      if (data.status === 'completed') {
-        // SUCESSO! A tarefa terminou.
-        statusMessage.textContent = 'Processamento concluído!';
-        displayResults(data.results);
-        stopChecking();
-      } else if (data.status === 'error') {
-        errorMessage.textContent = `Erro no processamento: ${data.message}`;
-        stopChecking();
-      }
-      // Se o status for 'processing', não fazemos nada e esperamos a próxima verificação.
-
-    } catch (err) {
-      errorMessage.textContent = `Erro de conexão ao verificar status: ${err.message}`;
-      stopChecking();
-    }
-  }
-
-  // Evento de submit do formulário
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const file = fileInput.files[0];
@@ -173,65 +105,70 @@ function initSimplifiedLogic() {
     reprovadasResults.innerHTML = '';
     aprovadasCount.textContent = '0';
     reprovadasCount.textContent = '0';
-    if(statusInterval) clearInterval(statusInterval);
 
     const formData = new FormData();
     formData.append('txtFile', file);
 
     try {
-      // PASSO 1: Enviar o arquivo
       const response = await fetch("/api/tools/vivasorte_checker", {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
+        // Se a resposta não for 'ok' (ex: erro 502), o código vai para o 'catch'
         const errorText = await response.text();
-        throw new Error(`Erro do servidor: ${response.status} - ${errorText}`);
+        throw new Error(errorText); // Lança o erro para ser pego pelo 'catch'
       }
       
+      // Este trecho só será executado se o backend retornar um JSON válido (o que não está a acontecer)
       const data = await response.json();
+      statusMessage.textContent = 'Processamento concluído!';
+      
+      const aprovadas = data.Aprovadas || [];
+      const reprovadas = data.Reprovadas || [];
 
-      // PASSO 2: Receber a resposta imediata ("ok" com jobId)
-      if (data.jobId) {
-        // ESTA É A MUDANÇA QUE VOCÊ PEDIU
-        statusMessage.textContent = 'DB enviada com sucesso! Processando em segundo plano...';
-        submitBtn.querySelector('.btn-text').textContent = 'Processando...';
-        
-        // PASSO 3: Começar a verificar o status a cada 3 segundos
-        statusInterval = setInterval(() => checkStatus(data.jobId), 3000);
-      } else {
-        throw new Error("Resposta do servidor não continha um ID de tarefa (jobId).");
-      }
+      aprovadasCount.textContent = aprovadas.length;
+      reprovadasCount.textContent = reprovadas.length;
 
-     } catch (err) {
-      // Tenta analisar a mensagem de erro para ver se contém o nosso erro específico
+      aprovadas.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item aprovada';
+        div.textContent = item;
+        aprovadasResults.appendChild(div);
+      });
+
+      reprovadas.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item reprovada';
+        div.textContent = item;
+        reprovadasResults.appendChild(div);
+      });
+
+    } catch (err) {
+      // ESTE É O BLOCO MAIS IMPORTANTE AGORA
       try {
-        // O erro vem como "Erro do servidor: 502 - {json...}"
-        // Extraímos apenas a parte do JSON
-        const errorJsonString = err.message.substring(err.message.indexOf('{'));
-        const errorData = JSON.parse(errorJsonString);
+        // Tenta converter a mensagem de erro (que é um JSON) para um objeto
+        const errorData = JSON.parse(err.message);
 
         // AQUI ESTÁ A LÓGICA QUE VOCÊ PEDIU
         if (errorData.backendResponse === 'ok') {
           // Se a resposta do backend foi "ok", mostramos a mensagem de sucesso
           statusMessage.textContent = 'DB foi enviada com sucesso!';
-          errorMessage.textContent = ''; // Limpa qualquer mensagem de erro
-          submitBtn.disabled = false; // Habilita o botão novamente
-          submitBtn.querySelector('.btn-text').textContent = 'Verificar';
-
-          // AVISO: O processo para aqui. Não temos como buscar os resultados.
-          console.warn("Recebido 'ok' do backend. A aplicação não buscará os resultados porque não há um jobId.");
-
+          errorMessage.textContent = ''; // Limpa a mensagem de erro
         } else {
-          // Se for qualquer outro erro, mostramos normalmente
-          errorMessage.textContent = err.message;
+          // Se for qualquer outro erro JSON, mostramos a mensagem
+          errorMessage.textContent = errorData.message || err.message;
           statusMessage.style.display = 'none';
         }
       } catch (e) {
-        // Se a mensagem de erro não for o nosso JSON esperado, mostramos o erro original
+        // Se o erro não for um JSON (um erro de rede, por exemplo), mostramos o erro original
         errorMessage.textContent = err.message;
         statusMessage.style.display = 'none';
+      } finally {
+        // Independentemente do resultado, reativamos o botão
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-text').textContent = 'Verificar';
       }
     }
   });
