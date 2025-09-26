@@ -83,16 +83,7 @@ export function render(appRoot) {
                     <textarea id="proxy_list" class="custom-textarea" placeholder="Insira seus proxies (um por linha)...\\nDEIXE VAZIO para usar IP LOCAL." rows="8"></textarea>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="stats-container">
-                    <div class="stat-item"><div class="stat-number text-success val-lives">0</div><div class="stat-label">Aprovadas</div></div>
-                    <div class="stat-item"><div class="stat-number text-danger val-dies">0</div><div class="stat-label">Reprovadas</div></div>
-                    <div class="stat-item"><div class="stat-number text-warning val-errors">0</div><div class="stat-label">Erros</div></div>
-                    <div class="stat-item"><div class="stat-number text-info val-tested">0</div><div class="stat-label">Testadas</div></div>
-                    <div class="stat-item"><div class="stat-number text-primary val-total">0</div><div class="stat-label">Total</div></div>
-                    <div class="stat-item"><div class="stat-number text-light" id="progress-percent">0%</div><div class="stat-label">Progresso</div></div>
-                </div>
-            </div>
+            
         </div>
         <div class="results-tabs">
              <ul class="nav nav-tabs" id="resultTabs" role="tablist">
@@ -335,3 +326,4 @@ function initCheckerLogic() {
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
+
