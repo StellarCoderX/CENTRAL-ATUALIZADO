@@ -1,4 +1,4 @@
-// /tools/vivasorte_checker/index.js
+// /tools/vivasorte_checker/index.js (Versão Simplificada)
 
 export function render(appRoot) {
   document.title = "Checker Vivasorte | Central de Checkers Pro";
@@ -7,7 +7,6 @@ export function render(appRoot) {
     <style>
       .checker-container { max-width: 900px; margin: 20px auto; color: #00ff41; }
       .form-section, .results-section, .stats-section { margin-bottom: 20px; }
-      .custom-textarea { width: 100%; min-height: 150px; background-color: rgba(0, 20, 0, 0.9); border: 2px solid var(--primary); color: #00ff41; padding: 10px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; }
       .results-area { min-height: 100px; max-height: 300px; overflow-y: auto; background-color: rgba(0,0,0,0.8); border: 1px solid var(--primary); padding: 10px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; }
       .result-item { padding: 5px; border-bottom: 1px solid #333; }
       .result-item.aprovada { color: #28a745; }
@@ -33,26 +32,10 @@ export function render(appRoot) {
 
         <form id="vivasorte-form">
           <div class="form-section">
-            <h3 class="cyber-text">1. Arquivo de Contas</h3>
+            <h3 class="cyber-text">Arquivo de Contas</h3>
             <div class="form-group">
               <label for="file-upload" class="form-label cyber-label">Selecione o arquivo (.txt)</label>
               <input id="file-upload" type="file" accept=".txt" class="form-input cyber-input" required>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3 class="cyber-text">2. Proxy (Opcional)</h3>
-            <div class="form-group">
-                <label for="proxy-host" class="form-label cyber-label">Host:Porta</label>
-                <input id="proxy-host" type="text" class="form-input cyber-input" placeholder="ex: 127.0.0.1:8080">
-            </div>
-            <div class="form-group">
-                <label for="proxy-user" class="form-label cyber-label">Usuário</label>
-                <input id="proxy-user" type="text" class="form-input cyber-input" placeholder="Opcional">
-            </div>
-            <div class="form-group">
-                <label for="proxy-pass" class="form-label cyber-label">Senha</label>
-                <input id="proxy-pass" type="text" class="form-input cyber-input" placeholder="Opcional">
             </div>
           </div>
 
@@ -89,10 +72,10 @@ export function render(appRoot) {
     </div>
   `;
 
-  initLogic();
+  initSimplifiedLogic();
 }
 
-function initLogic() {
+function initSimplifiedLogic() {
   const form = document.getElementById('vivasorte-form');
   const fileInput = document.getElementById('file-upload');
   const submitBtn = document.getElementById('submit-btn');
@@ -112,9 +95,10 @@ function initLogic() {
       return;
     }
 
+    // Limpa a interface para a nova verificação
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
-    statusMessage.textContent = 'Enviando arquivo e processando...';
+    statusMessage.textContent = 'Enviando e processando...';
     submitBtn.disabled = true;
     submitBtn.querySelector('.btn-text').textContent = 'Verificando...';
     aprovadasResults.innerHTML = '';
@@ -123,15 +107,7 @@ function initLogic() {
     reprovadasCount.textContent = '0';
 
     const formData = new FormData();
-    formData.append('txtFile', file);
-
-    const proxyHostPort = document.getElementById('proxy-host').value.split(':');
-    if (proxyHostPort.length === 2) {
-        formData.append('proxy_host', proxyHostPort[0]);
-        formData.append('proxy_port', proxyHostPort[1]);
-    }
-    formData.append('proxy_user', document.getElementById('proxy-user').value);
-    formData.append('proxy_pass', document.getElementById('proxy-pass').value);
+    formData.append('txtFile', file); // Adiciona o arquivo ao formulário
 
     try {
       const response = await fetch('/api/tools/vivasorte_checker', {
@@ -139,24 +115,18 @@ function initLogic() {
         body: formData,
       });
 
-      // --- INÍCIO DA CORREÇÃO ---
-      // 1. VERIFICA SE A RESPOSTA FOI OK (status 200-299)
       if (!response.ok) {
-        // Se não foi OK, tenta ler o corpo como texto para ver o erro do servidor
         const errorText = await response.text();
-        // Lança um erro com a mensagem do servidor, que será pego pelo bloco catch
         throw new Error(`Erro do servidor: ${response.status} - ${errorText}`);
       }
       
-      // 2. SÓ TENTA LER COMO JSON SE A RESPOSTA FOI OK
       const data = await response.json();
-      // --- FIM DA CORREÇÃO ---
-      
       statusMessage.textContent = 'Processamento concluído!';
       
       const aprovadas = data.Aprovadas || [];
       const reprovadas = data.Reprovadas || [];
 
+      // Atualiza os contadores e exibe os resultados
       aprovadasCount.textContent = aprovadas.length;
       reprovadasCount.textContent = reprovadas.length;
 
@@ -175,7 +145,6 @@ function initLogic() {
       });
 
     } catch (err) {
-      // Agora o 'err.message' conterá uma mensagem muito mais útil
       errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
     } finally {
