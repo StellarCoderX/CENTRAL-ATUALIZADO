@@ -9,8 +9,15 @@ const App = {
     "#profile": UI.renderProfilePage,
     "#credits": UI.renderCreditsPage,
     "#shein-checker": UI.renderToolPage,
+    "#vivasorte-checker": UI.renderToolPage, 
   },
-  protectedRoutes: ["#dashboard", "#profile", "#credits", "#shein-checker"],
+  protectedRoutes: [
+    "#dashboard", 
+    "#profile", 
+    "#credits", 
+    "#shein-checker", 
+    "#vivasorte-checker" // <-- ROTA PROTEGIDA
+  ],
 
   init() {
     window.addEventListener("hashchange", this.handleRoute.bind(this));
@@ -44,4 +51,5 @@ const App = {
 App.init();
 
 export default App;
+
 
