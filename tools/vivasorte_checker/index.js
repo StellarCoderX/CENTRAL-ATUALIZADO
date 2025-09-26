@@ -204,10 +204,36 @@ function initSimplifiedLogic() {
         throw new Error("Resposta do servidor não continha um ID de tarefa (jobId).");
       }
 
-    } catch (err) {
-      errorMessage.textContent = `${err.message}`;
-      statusMessage.style.display = 'none';
-      stopChecking();
+     } catch (err) {
+      // Tenta analisar a mensagem de erro para ver se contém o nosso erro específico
+      try {
+        // O erro vem como "Erro do servidor: 502 - {json...}"
+        // Extraímos apenas a parte do JSON
+        const errorJsonString = err.message.substring(err.message.indexOf('{'));
+        const errorData = JSON.parse(errorJsonString);
+
+        // AQUI ESTÁ A LÓGICA QUE VOCÊ PEDIU
+        if (errorData.backendResponse === 'ok') {
+          // Se a resposta do backend foi "ok", mostramos a mensagem de sucesso
+          statusMessage.textContent = 'DB foi enviada com sucesso!';
+          errorMessage.textContent = ''; // Limpa qualquer mensagem de erro
+          submitBtn.disabled = false; // Habilita o botão novamente
+          submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+
+          // AVISO: O processo para aqui. Não temos como buscar os resultados.
+          console.warn("Recebido 'ok' do backend. A aplicação não buscará os resultados porque não há um jobId.");
+
+        } else {
+          // Se for qualquer outro erro, mostramos normalmente
+          errorMessage.textContent = err.message;
+          statusMessage.style.display = 'none';
+        }
+      } catch (e) {
+        // Se a mensagem de erro não for o nosso JSON esperado, mostramos o erro original
+        errorMessage.textContent = err.message;
+        statusMessage.style.display = 'none';
+      }
     }
   });
 }
+
