@@ -145,7 +145,7 @@ const UI = {
                     <p class="subtitle terminal-text">Selecione uma ferramenta para iniciar a operação.</p>
                 </div>
                 <div class="tools-grid" id="tools-grid">
-                    <a href="#" class="tool-card cyber-tool-card">
+                    <a href="#shein-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK CC FULL</h2>
                         <p class="tool-desc terminal-text">DEBITANDO | USE PROXY</p>
@@ -153,7 +153,7 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                    <a href="#" class="tool-card cyber-tool-card">
+                   <a href="#shein-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-rocket"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK KABUM</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN</p>
@@ -358,6 +358,7 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
 
