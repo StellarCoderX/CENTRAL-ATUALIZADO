@@ -1,35 +1,40 @@
-// /api/tools/vivasorte_checker.js
+// /api/tools/vivasorte_checker.js (Versão Simplificada)
 
 import { promises as fs } from 'fs';
 import formidable from 'formidable';
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Essencial para formidable funcionar
   },
 };
 
 export default async function handler(request, response) {
+  // Apenas aceita requisições POST
   if (request.method !== "POST") {
     return response.status(405).json({ message: "Método não permitido" });
   }
 
   try {
+    // 1. Processa o formulário para obter o arquivo enviado
     const data = await new Promise((resolve, reject) => {
       const form = formidable({});
       form.parse(request, (err, fields, files) => {
-        if (err) return reject(err);
-        resolve({ fields, files });
+        if (err) {
+          return reject(err);
+        }
+        resolve({ files });
       });
     });
 
-    const { proxy_host, proxy_port, proxy_user, proxy_pass } = data.fields;
     const uploadedFile = data.files.txtFile;
 
+    // 2. Valida se o arquivo foi realmente enviado
     if (!uploadedFile || uploadedFile.length === 0) {
-      return response.status(400).json({ success: false, message: 'Nenhum arquivo enviado.' });
+      return response.status(400).json({ success: false, message: 'Nenhum arquivo foi enviado no campo "txtFile".' });
     }
 
+    // 3. Lê o conteúdo do arquivo para obter a lista
     const filePath = uploadedFile[0].filepath;
     const lista = await fs.readFile(filePath, 'utf8');
 
@@ -37,62 +42,31 @@ export default async function handler(request, response) {
       return response.status(400).json({ success: false, message: 'O arquivo enviado está vazio.' });
     }
 
-    // --- INÍCIO DA CORREÇÃO: MUDANÇA PARA 'x-www-form-urlencoded' ---
-
+    // 4. Prepara e envia os dados para a API externa
     const targetUrl = `http://72.60.143.32:3010/api/vivasorte/db`;
-
-    // 1. Usa URLSearchParams para construir o corpo no formato 'key=value&key2=value2'
     const bodyParams = new URLSearchParams();
-    bodyParams.append('lista', lista);
+    bodyParams.append('lista', lista); // Adiciona a lista ao corpo da requisição
 
-    // Adiciona os dados de proxy se eles forem fornecidos e não estiverem vazios
-    if (proxy_host && proxy_host[0]) {
-      bodyParams.append('proxy_host', proxy_host[0]);
-    }
-    if (proxy_port && proxy_port[0]) {
-      bodyParams.append('proxy_port', proxy_port[0]);
-    }
-    if (proxy_user && proxy_user[0]) {
-      bodyParams.append('proxy_user', proxy_user[0]);
-    }
-    if (proxy_pass && proxy_pass[0]) {
-      bodyParams.append('proxy_pass', proxy_pass[0]);
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    // 2. Altera o 'Content-Type' e envia o corpo formatado
     const apiResponse = await fetch(targetUrl, {
       method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded', // <- MUDANÇA CRÍTICA
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: bodyParams, // Envia o corpo formatado pelo URLSearchParams
-      signal: controller.signal,
+      body: bodyParams,
     });
 
-    clearTimeout(timeoutId);
-    // --- FIM DA CORREÇÃO ---
-
+    // 5. Retorna a resposta da API externa para o usuário
     if (!apiResponse.ok) {
       const errorBody = await apiResponse.text();
       throw new Error(`Erro na API externa: ${apiResponse.status} - ${errorBody}`);
     }
 
     const responseData = await apiResponse.json();
-    response.status(200).json(responseData);
+    return response.status(200).json(responseData);
 
   } catch (error) {
-    if (error.name === 'AbortError') {
-      return response.status(504).json({
-        success: false,
-        message: "Erro: A API externa demorou muito para responder (Timeout).",
-      });
-    }
-
     console.error("Erro no servidor Vivasorte:", error);
-    response.status(500).json({
+    return response.status(500).json({
       success: false,
       message: "Erro interno no servidor: " + error.message,
     });
