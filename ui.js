@@ -145,7 +145,9 @@ const UI = {
                     <p class="subtitle terminal-text">Selecione uma ferramenta para iniciar a operação.</p>
                 </div>
                 <div class="tools-grid" id="tools-grid">
-                    <a href="#shein-checker" class="tool-card cyber-tool-card">
+                    
+                    {/* --- LINKS CORRIGIDOS AQUI --- */}
+                    <a href="#" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK CC FULL</h2>
                         <p class="tool-desc terminal-text">DEBITANDO | USE PROXY</p>
@@ -153,7 +155,7 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                   <a href="#shein-checker" class="tool-card cyber-tool-card">
+                   <a href="#" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-rocket"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK KABUM</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN</p>
@@ -166,11 +168,10 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK SHEIN</h2>
                         <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live | USE PROXY!</p>
                         <div class="tool-status">
-                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
-
-                    <a href="#shein-checker" class="tool-card cyber-tool-card">
+                    <a href="#" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-star"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
@@ -178,22 +179,21 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                    </div>
+                    {/* --- FIM DA CORREÇÃO --- */}
+
+                </div>
             </main>
         </div>`;
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
   },
 
-  // --- NOVA FUNÇÃO GENÉRICA PARA CARREGAR FERRAMENTAS ---
   async renderToolPage() {
-    const hash = window.location.hash.substring(1); // Ex: "shein-checker"
-    const toolName = hash.replace('-checker', ''); // Ex: "shein"
+    const hash = window.location.hash.substring(1);
+    const toolName = hash.replace('-checker', '');
 
     try {
-      // Carrega o módulo da ferramenta dinamicamente
       const toolModule = await import(`../tools/${toolName}_checker/index.js`);
       
-      // Chama a função 'render' exportada pelo módulo
       if (toolModule && typeof toolModule.render === 'function') {
         toolModule.render(this.appRoot);
       } else {
@@ -205,7 +205,6 @@ const UI = {
     }
   },
 
-  // --- FUNÇÃO DE PERFIL ATUALIZADA ---
   renderProfilePage() {
     document.title = "Meu Perfil | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
@@ -220,7 +219,6 @@ const UI = {
               </div>
               <p class="subtitle terminal-text">Gerencie suas informações e segurança.</p>
             </div>
-
             <form id="profileForm">
               <div class="form-group text-center">
                   <label class="form-label cyber-label">Foto de Perfil</label>
@@ -230,9 +228,7 @@ const UI = {
                   <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
                   <p class="terminal-text" style="font-size: 0.8rem; margin-top: 0.5rem;">Clique na imagem para selecionar um novo avatar.</p>
               </div>
-
               <hr class="cyber-divider">
-
               <h2 class="cyber-text" style="text-align:center; margin-bottom: 1.5rem;">Alterar Senha</h2>
               <div class="form-group">
                 <label for="currentPassword" class="form-label cyber-label">Senha Atual</label>
@@ -246,7 +242,6 @@ const UI = {
                 <label for="confirmPassword" class="form-label cyber-label">Confirmar Nova Senha</label>
                 <input type="password" id="confirmPassword" class="form-input cyber-input" placeholder="Repita a nova senha">
               </div>
-
               <button type="submit" class="btn btn-primary btn-full cyber-btn cyber-execute-btn mt-3">
                 <i class="fas fa-save"></i> <span class="btn-text">Salvar Alterações</span><div class="btn-glow"></div>
               </button>
@@ -259,25 +254,20 @@ const UI = {
       </div>
     `;
 
-    // --- LÓGICA DE UPLOAD ADICIONADA AQUI ---
     const avatarContainer = document.getElementById('avatar-container');
     const avatarUploadInput = document.getElementById('avatarUpload');
     
-    // Abrir o seletor de arquivos ao clicar no avatar
     avatarContainer.addEventListener('click', () => {
       avatarUploadInput.click();
     });
 
-    // Mostrar pré-visualização da imagem selecionada
     avatarUploadInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // Remove as iniciais se existirem
             const initials = document.getElementById('avatar-initials');
             if(initials) initials.remove();
-
             let preview = document.getElementById('avatar-preview');
             if(!preview) {
                 preview = document.createElement('img');
@@ -291,7 +281,6 @@ const UI = {
       }
     });
 
-    // Lidar com o envio do formulário
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const file = avatarUploadInput.files[0];
@@ -312,7 +301,6 @@ const UI = {
             }
         }
         
-        // Lógica para salvar a senha (ainda não implementada)
         const newPassword = document.getElementById('newPassword').value;
         if(newPassword){
             UI.showFeedback('Função de alterar senha ainda não implementada.', 'info');
@@ -358,8 +346,3 @@ const UI = {
 window.UI = UI;
 
 export default UI;
-
-
-
-
-
