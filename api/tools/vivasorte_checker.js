@@ -1,5 +1,6 @@
-import busboy from 'busboy';
+// /api/tools/vivasorte_checker.js (Versão Final SEM dependências)
 
+// Adicione esta configuração no topo do arquivo
 export const config = {
   api: {
     bodyParser: false,
@@ -7,42 +8,32 @@ export const config = {
 };
 
 export default async function handler(request, response) {
+  // Aceita apenas o método POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Método não permitido' });
   }
 
-  const backendUrl = "http://72.60.143.32:3010/api/vivasorte/db";
-
   try {
-    const bb = busboy({ headers: request.headers } );
-    request.pipe(bb);
-
-    bb.on('file', (fieldname, file, _filename, _encoding, _mimetype) => {
-      fetch(backendUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': request.headers['content-type'],
-        },
-        body: file,
-        // CORREÇÃO: Adicionar a opção duplex para streams no body
-        duplex: 'half',
-      })
-      .then(apiResponse => {
-        return apiResponse.json().then(data => ({ status: apiResponse.status, body: data }));
-      })
-      .then(({ status, body }) => {
-        response.status(status).json(body);
-      })
-      .catch(err => {
-        console.error('Erro ao contatar o servidor de backend:', err);
-        response.status(500).json({ success: false, message: 'Erro de comunicação com o servidor final: ' + err.message });
-      });
+    const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
+      method: 'POST',
+      headers: {
+        // Ainda passamos o cabeçalho Content-Type, que é crucial
+        'Content-Type': request.headers['content-type'],
+      },
+      // Agora, em vez de 'request.body', passamos o 'request' inteiro.
+      // Como o bodyParser está desabilitado, 'request' age como um fluxo (stream)
+      // de dados que o fetch consegue enviar diretamente.
+      body: request,
     });
 
-    bb.on('error', (err) => {
-        console.error('Erro no processamento do Busboy:', err);
-        response.status(500).json({ success: false, message: 'Erro ao processar o arquivo enviado.' });
-    });
+    const responseData = await apiResponse.json();
+
+    if (!apiResponse.ok) {
+      console.error("Erro retornado pelo backend principal:", responseData);
+      return response.status(apiResponse.status).json(responseData);
+    }
+
+    response.status(200).json(responseData);
 
   } catch (error) {
     console.error('Erro na função serverless da Vercel:', error);
