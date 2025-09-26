@@ -37,38 +37,38 @@ export default async function handler(request, response) {
       return response.status(400).json({ success: false, message: 'O arquivo enviado está vazio.' });
     }
 
-    // --- INÍCIO DA CORREÇÃO: MUDANÇA PARA POST ---
+    // --- INÍCIO DA CORREÇÃO: MUDANÇA PARA 'x-www-form-urlencoded' ---
 
-    // 1. A URL de destino agora não precisa da lista
-    let targetUrl = `http://72.60.143.32:3010/api/vivasorte/db`;
+    const targetUrl = `http://72.60.143.32:3010/api/vivasorte/db`;
 
-    // 2. Os dados a serem enviados no corpo da requisição
-    const requestBody = {
-      lista: lista, // Envia a lista de contas
-    };
+    // 1. Usa URLSearchParams para construir o corpo no formato 'key=value&key2=value2'
+    const bodyParams = new URLSearchParams();
+    bodyParams.append('lista', lista);
 
-    // Adiciona os dados de proxy ao corpo, se existirem
-    if (proxy_host && proxy_port) {
-      requestBody.proxy_host = proxy_host[0];
-      requestBody.proxy_port = proxy_port[0];
-      if (proxy_user && proxy_user[0]) {
-        requestBody.proxy_user = proxy_user[0];
-      }
-      if (proxy_pass && proxy_pass[0]) {
-        requestBody.proxy_pass = proxy_pass[0];
-      }
+    // Adiciona os dados de proxy se eles forem fornecidos e não estiverem vazios
+    if (proxy_host && proxy_host[0]) {
+      bodyParams.append('proxy_host', proxy_host[0]);
+    }
+    if (proxy_port && proxy_port[0]) {
+      bodyParams.append('proxy_port', proxy_port[0]);
+    }
+    if (proxy_user && proxy_user[0]) {
+      bodyParams.append('proxy_user', proxy_user[0]);
+    }
+    if (proxy_pass && proxy_pass[0]) {
+      bodyParams.append('proxy_pass', proxy_pass[0]);
     }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    // 3. A chamada fetch agora é um POST
+    // 2. Altera o 'Content-Type' e envia o corpo formatado
     const apiResponse = await fetch(targetUrl, {
-      method: "POST", // Método alterado para POST
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json', // Informa que estamos enviando JSON
+        'Content-Type': 'application/x-www-form-urlencoded', // <- MUDANÇA CRÍTICA
       },
-      body: JSON.stringify(requestBody), // Envia os dados no corpo, convertidos para string JSON
+      body: bodyParams, // Envia o corpo formatado pelo URLSearchParams
       signal: controller.signal,
     });
 
@@ -85,7 +85,6 @@ export default async function handler(request, response) {
 
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error("Fetch para API externa excedeu o tempo limite:", error);
       return response.status(504).json({
         success: false,
         message: "Erro: A API externa demorou muito para responder (Timeout).",
