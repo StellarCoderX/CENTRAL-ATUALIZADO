@@ -11,13 +11,24 @@ export default async function handler(request, response) {
   }
 
   try {
+    // Pega o token de autorização do cabeçalho da requisição original.
+    const authorizationToken = request.headers['authorization'];
+
+    // Prepara os cabeçalhos para a nova requisição.
+    const headers = {
+      // Passa o cabeçalho 'Content-Type' original, essencial para o upload de arquivos.
+      'Content-Type': request.headers['content-type'],
+    };
+
+    // Se o token existir, adiciona ao cabeçalho da requisição para o servidor final.
+    if (authorizationToken) {
+      headers['Authorization'] = authorizationToken;
+    }
+
     // Reencaminha a requisição para o servidor final.
     const apiResponse = await fetch("http://72.60.143.32:3010/api/vivasorte/db", {
       method: 'POST',
-      headers: {
-        // Passa o cabeçalho 'Content-Type' original, essencial para o upload de arquivos.
-        'Content-Type': request.headers['content-type'],
-      },
+      headers: headers, // Usa os novos cabeçalhos com o token
       // Passa a requisição como um stream. A opção 'duplex' é necessária
       // para compatibilidade com as versões mais recentes do Node.js.
       body: request,
@@ -32,27 +43,23 @@ export default async function handler(request, response) {
       // Tenta converter o texto da resposta em um objeto JSON.
       responseData = JSON.parse(responseText);
     } catch (jsonError) {
-      // Se a conversão falhar (ex: a resposta foi "ok" ou um erro de HTML),
-      // o proxy não vai quebrar. Em vez disso, ele reportará o erro.
+      // Se a conversão falhar, retorna um erro indicando comunicação falha.
       console.error("Erro de JSON: O servidor final não retornou um JSON válido.", {
         status: apiResponse.status,
         respostaRecebida: responseText,
       });
-      // Retorna um erro 502 (Bad Gateway), que significa que o proxy recebeu
-      // uma resposta inválida do servidor ao qual se conectou.
       return response.status(502).json({
         success: false,
         message: "Erro de comunicação: O servidor final retornou uma resposta inesperada.",
         backendResponse: responseText,
       });
     }
-
+    
     // Se o JSON for válido, envia os dados e o status originais para o frontend.
     return response.status(apiResponse.status).json(responseData);
 
   } catch (error) {
-    // Se ocorrer um erro de rede ou qualquer outro erro inesperado na função,
-    // ele será capturado aqui.
+    // Captura erros de rede ou outros imprevistos.
     console.error('Erro crítico na função serverless da Vercel:', error);
     return response.status(500).json({
       success: false,
@@ -60,4 +67,3 @@ export default async function handler(request, response) {
     });
   }
 }
-
