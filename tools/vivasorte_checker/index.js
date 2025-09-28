@@ -130,25 +130,26 @@ function initSimplifiedLogic() {
 
       const data = await response.json();
 
-      // **LÓGICA FINAL CORRIGIDA**
+      // **LÓGICA MAIS ROBUSTA**
 
-      // 1. Primeiro, trata qualquer tipo de erro.
+      // 1. Trata qualquer tipo de erro primeiro.
       if (!response.ok || data.status === 'error') {
           throw new Error(data.message || 'Ocorreu um erro desconhecido na API.');
       } 
       
-      // 2. Se a resposta for de sucesso ('ok') E AINDA NÃO contiver os resultados,
-      //    significa que o processamento foi apenas iniciado.
-      if (data.status === 'ok' && data.Aprovadas === undefined) {
+      // 2. VERIFICAÇÃO PRINCIPAL: Se a resposta tem 'clientId', significa que o processo
+      //    foi iniciado em segundo plano. Esta é a condição mais segura.
+      if (data.clientId) {
           statusMessage.textContent = data.message; // Exibe "Processamento iniciado..."
           errorMessage.textContent = ''; 
-          // A linha abaixo é crucial: ela reativa o botão e encerra a função aqui.
+          
+          // Reativa o botão e para a execução
           submitBtn.disabled = false;
           submitBtn.querySelector('.btn-text').textContent = 'Verificar';
-          return; // Para a execução para não mostrar "Processamento concluído!"
+          return; 
       }
       
-      // 3. Se o código chegou até aqui, significa que a resposta contém os resultados.
+      // 3. Se chegou aqui, a resposta contém os resultados finais.
       statusMessage.textContent = 'Processamento concluído!';
       const aprovadas = data.Aprovadas || [];
       const reprovadas = data.Reprovadas || [];
@@ -174,11 +175,8 @@ function initSimplifiedLogic() {
       errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
     } finally {
-      // O 'finally' agora só reativa o botão se um erro tiver ocorrido.
-      // No caso de sucesso, o botão já é reativado dentro do próprio 'try'.
-      if (!submitBtn.disabled) {
-          // Apenas um fallback, o botão já deve estar habilitado.
-      } else {
+      // Reativa o botão apenas se ele ainda estiver desativado (ou seja, em caso de erro)
+      if (submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Verificar';
       }
