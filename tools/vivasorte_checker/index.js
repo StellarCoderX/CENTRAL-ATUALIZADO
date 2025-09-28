@@ -1,4 +1,4 @@
-// /tools/vivasorte_checker/index.js (Código Final)
+// /tools/vivasorte_checker/index.js (Código Final Atualizado)
 
 export function render(appRoot) {
   document.title = "Checker Vivasorte | Central de Checkers Pro";
@@ -97,13 +97,13 @@ function initSimplifiedLogic() {
 
     if (!file.name.toLowerCase().endsWith('.txt')) {
       errorMessage.textContent = 'Erro: Apenas arquivos .txt são permitidos.';
-      fileInput.value = ''; 
+      fileInput.value = '';
       return;
     }
 
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
-    statusMessage.textContent = 'Enviando arquivo...';
+    statusMessage.textContent = 'Enviando arquivo e validando créditos...';
     submitBtn.disabled = true;
     submitBtn.querySelector('.btn-text').textContent = 'Enviando...';
     aprovadasResults.innerHTML = '';
@@ -114,10 +114,7 @@ function initSimplifiedLogic() {
     const formData = new FormData();
     formData.append('txtFile', file);
     
-    // Pega o token de login armazenado no navegador.
     const token = localStorage.getItem('accessToken');
-
-    // Prepara os cabeçalhos da requisição.
     const headers = {};
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -126,24 +123,30 @@ function initSimplifiedLogic() {
     try {
       const response = await fetch("/api/tools/vivasorte_checker", {
         method: 'POST',
-        headers: headers, // Adiciona o cabeçalho com o token
+        headers: headers,
         body: formData,
       });
 
       const data = await response.json();
 
-      // Verifica se a resposta indica um erro, mesmo com status 200 OK.
       if (!response.ok || data.status === 'error') {
-          // Se o código for de créditos insuficientes, joga um erro com a mensagem específica.
           if (data.code === 'INSUFFICIENT_CREDITS') {
               throw new Error(data.message);
           }
-          // Para outros erros, usa a mensagem padrão.
-          throw new Error(data.message || 'Ocorreu um erro desconhecido.');
+          throw new Error(data.message || 'Ocorreu um erro desconhecido na API.');
       }
       
+      // **NOVA LÓGICA DE SUCESSO**
+      // Se a API retornar 'ok', exibe a mensagem de processamento em segundo plano.
+      if (data.status === 'ok') {
+          statusMessage.textContent = data.message; // Exibe: "Processamento iniciado..."
+          errorMessage.textContent = ''; // Limpa qualquer erro anterior
+          // Não tentamos exibir resultados aqui, pois eles virão depois.
+          return; // Finaliza a execução bem-sucedida.
+      }
+
+      // Este bloco abaixo serve como um fallback, caso a API retorne os resultados imediatamente.
       statusMessage.textContent = 'Processamento concluído!';
-      
       const aprovadas = data.Aprovadas || [];
       const reprovadas = data.Reprovadas || [];
 
@@ -165,11 +168,9 @@ function initSimplifiedLogic() {
       });
 
     } catch (err) {
-      // Exibe a mensagem de erro (incluindo a de créditos) para o usuário.
-      errorMessage.textContent = `Erro: ${err.message}`;
+      errorMessage.textContent = `${err.message}`; // Exibe o erro de créditos ou outros.
       statusMessage.style.display = 'none';
     } finally {
-        // Reabilita o botão, independentemente do resultado.
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Verificar';
     }
