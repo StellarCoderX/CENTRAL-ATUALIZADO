@@ -101,6 +101,7 @@ function initSimplifiedLogic() {
       return;
     }
 
+    // Limpa a interface antes de um novo envio
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
     statusMessage.textContent = 'Enviando arquivo e validando créditos...';
@@ -129,50 +130,48 @@ function initSimplifiedLogic() {
 
       const data = await response.json();
 
+      // **LÓGICA CORRIGIDA**
+
+      // 1. Verifica se há erro (créditos insuficientes ou outros)
       if (!response.ok || data.status === 'error') {
-          if (data.code === 'INSUFFICIENT_CREDITS') {
-              throw new Error(data.message);
-          }
           throw new Error(data.message || 'Ocorreu um erro desconhecido na API.');
+      } 
+      // 2. Se for sucesso com início de processamento, exibe a mensagem e para
+      else if (data.status === 'ok') {
+          statusMessage.textContent = data.message; // Ex: "Processamento iniciado..."
+          errorMessage.textContent = ''; 
       }
-      
-      // **NOVA LÓGICA DE SUCESSO**
-      // Se a API retornar 'ok', exibe a mensagem de processamento em segundo plano.
-      if (data.status === 'ok') {
-          statusMessage.textContent = data.message; // Exibe: "Processamento iniciado..."
-          errorMessage.textContent = ''; // Limpa qualquer erro anterior
-          // Não tentamos exibir resultados aqui, pois eles virão depois.
-          return; // Finaliza a execução bem-sucedida.
+      // 3. Se for sucesso e já vier com resultados (fallback)
+      else {
+          statusMessage.textContent = 'Processamento concluído!';
+          const aprovadas = data.Aprovadas || [];
+          const reprovadas = data.Reprovadas || [];
+
+          aprovadasCount.textContent = aprovadas.length;
+          reprovadasCount.textContent = reprovadas.length;
+
+          aprovadas.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'result-item aprovada';
+            div.textContent = item;
+            aprovadasResults.appendChild(div);
+          });
+
+          reprovadas.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'result-item reprovada';
+            div.textContent = item;
+            reprovadasResults.appendChild(div);
+          });
       }
-
-      // Este bloco abaixo serve como um fallback, caso a API retorne os resultados imediatamente.
-      statusMessage.textContent = 'Processamento concluído!';
-      const aprovadas = data.Aprovadas || [];
-      const reprovadas = data.Reprovadas || [];
-
-      aprovadasCount.textContent = aprovadas.length;
-      reprovadasCount.textContent = reprovadas.length;
-
-      aprovadas.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'result-item aprovada';
-        div.textContent = item;
-        aprovadasResults.appendChild(div);
-      });
-
-      reprovadas.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'result-item reprovada';
-        div.textContent = item;
-        reprovadasResults.appendChild(div);
-      });
 
     } catch (err) {
       errorMessage.textContent = `${err.message}`; // Exibe o erro de créditos ou outros.
       statusMessage.style.display = 'none';
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+      // Reabilita o botão em qualquer cenário
+      submitBtn.disabled = false;
+      submitBtn.querySelector('.btn-text').textContent = 'Verificar';
     }
   });
 }
