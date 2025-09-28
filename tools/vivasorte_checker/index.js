@@ -130,48 +130,58 @@ function initSimplifiedLogic() {
 
       const data = await response.json();
 
-      // **LÓGICA CORRIGIDA**
+      // **LÓGICA FINAL CORRIGIDA**
 
-      // 1. Verifica se há erro (créditos insuficientes ou outros)
+      // 1. Primeiro, trata qualquer tipo de erro.
       if (!response.ok || data.status === 'error') {
           throw new Error(data.message || 'Ocorreu um erro desconhecido na API.');
       } 
-      // 2. Se for sucesso com início de processamento, exibe a mensagem e para
-      else if (data.status === 'ok') {
-          statusMessage.textContent = data.message; // Ex: "Processamento iniciado..."
+      
+      // 2. Se a resposta for de sucesso ('ok') E AINDA NÃO contiver os resultados,
+      //    significa que o processamento foi apenas iniciado.
+      if (data.status === 'ok' && data.Aprovadas === undefined) {
+          statusMessage.textContent = data.message; // Exibe "Processamento iniciado..."
           errorMessage.textContent = ''; 
+          // A linha abaixo é crucial: ela reativa o botão e encerra a função aqui.
+          submitBtn.disabled = false;
+          submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+          return; // Para a execução para não mostrar "Processamento concluído!"
       }
-      // 3. Se for sucesso e já vier com resultados (fallback)
-      else {
-          statusMessage.textContent = 'Processamento concluído!';
-          const aprovadas = data.Aprovadas || [];
-          const reprovadas = data.Reprovadas || [];
+      
+      // 3. Se o código chegou até aqui, significa que a resposta contém os resultados.
+      statusMessage.textContent = 'Processamento concluído!';
+      const aprovadas = data.Aprovadas || [];
+      const reprovadas = data.Reprovadas || [];
 
-          aprovadasCount.textContent = aprovadas.length;
-          reprovadasCount.textContent = reprovadas.length;
+      aprovadasCount.textContent = aprovadas.length;
+      reprovadasCount.textContent = reprovadas.length;
 
-          aprovadas.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item aprovada';
-            div.textContent = item;
-            aprovadasResults.appendChild(div);
-          });
+      aprovadas.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item aprovada';
+        div.textContent = item;
+        aprovadasResults.appendChild(div);
+      });
 
-          reprovadas.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item reprovada';
-            div.textContent = item;
-            reprovadasResults.appendChild(div);
-          });
-      }
+      reprovadas.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item reprovada';
+        div.textContent = item;
+        reprovadasResults.appendChild(div);
+      });
 
     } catch (err) {
-      errorMessage.textContent = `${err.message}`; // Exibe o erro de créditos ou outros.
+      errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
     } finally {
-      // Reabilita o botão em qualquer cenário
-      submitBtn.disabled = false;
-      submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+      // O 'finally' agora só reativa o botão se um erro tiver ocorrido.
+      // No caso de sucesso, o botão já é reativado dentro do próprio 'try'.
+      if (!submitBtn.disabled) {
+          // Apenas um fallback, o botão já deve estar habilitado.
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-text').textContent = 'Verificar';
+      }
     }
   });
 }
