@@ -90,20 +90,17 @@ function initSimplifiedLogic() {
     event.preventDefault();
     const file = fileInput.files[0];
 
-    // Validação 1: Verifica se um ficheiro foi selecionado
     if (!file) {
       errorMessage.textContent = 'Por favor, selecione um arquivo .txt.';
       return;
     }
 
-    // NOVA VALIDAÇÃO: Verifica se o ficheiro termina com .txt (ignora maiúsculas/minúsculas)
     if (!file.name.toLowerCase().endsWith('.txt')) {
       errorMessage.textContent = 'Erro: Apenas arquivos .txt são permitidos.';
-      fileInput.value = ''; // Limpa o campo de ficheiro para forçar o utilizador a escolher novamente
+      fileInput.value = ''; 
       return;
     }
 
-    // Limpa a tela antes de um novo envio
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
     statusMessage.textContent = 'Enviando arquivo...';
@@ -116,19 +113,35 @@ function initSimplifiedLogic() {
 
     const formData = new FormData();
     formData.append('txtFile', file);
+    
+    // Pega o token de login armazenado no navegador.
+    const token = localStorage.getItem('accessToken');
+
+    // Prepara os cabeçalhos da requisição.
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
 
     try {
       const response = await fetch("/api/tools/vivasorte_checker", {
         method: 'POST',
+        headers: headers, // Adiciona o cabeçalho com o token
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
+      const data = await response.json();
+
+      // Verifica se a resposta indica um erro, mesmo com status 200 OK.
+      if (!response.ok || data.status === 'error') {
+          // Se o código for de créditos insuficientes, joga um erro com a mensagem específica.
+          if (data.code === 'INSUFFICIENT_CREDITS') {
+              throw new Error(data.message);
+          }
+          // Para outros erros, usa a mensagem padrão.
+          throw new Error(data.message || 'Ocorreu um erro desconhecido.');
       }
       
-      const data = await response.json();
       statusMessage.textContent = 'Processamento concluído!';
       
       const aprovadas = data.Aprovadas || [];
@@ -152,22 +165,13 @@ function initSimplifiedLogic() {
       });
 
     } catch (err) {
-      try {
-        const errorData = JSON.parse(err.message);
-        if (errorData.backendResponse === 'ok') {
-          statusMessage.textContent = 'DB foi enviada com sucesso!';
-          errorMessage.textContent = '';
-        } else {
-          errorMessage.textContent = errorData.message || err.message;
-          statusMessage.style.display = 'none';
-        }
-      } catch (e) {
-        errorMessage.textContent = err.message;
-        statusMessage.style.display = 'none';
-      } finally {
+      // Exibe a mensagem de erro (incluindo a de créditos) para o usuário.
+      errorMessage.textContent = `Erro: ${err.message}`;
+      statusMessage.style.display = 'none';
+    } finally {
+        // Reabilita o botão, independentemente do resultado.
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Verificar';
-      }
     }
   });
 }
