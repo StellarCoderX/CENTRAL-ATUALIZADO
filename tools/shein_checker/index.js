@@ -109,16 +109,14 @@ export function render(appRoot) {
 
 // Lógica principal do checker, agora dentro do seu próprio módulo
 function initCheckerLogic() {
-  let testadas = [],
-    total = 0,
+  let total = 0,
     tested = 0,
     lives = 0,
     dies = 0,
     errors = 0;
   let stopped = true,
     paused = false;
-  let proxies = [],
-    currentProxyIndex = 0;
+  // Variáveis de proxy removidas
   const audio = new Audio(
     "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
   );
@@ -126,21 +124,7 @@ function initCheckerLogic() {
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => document.querySelectorAll(selector);
 
-  function parseProxy(proxyString) {
-    const parts = proxyString.trim().split(":");
-    if (parts.length === 2)
-      return { host: parts[0], port: parts[1], user: null, pass: null };
-    if (parts.length === 4)
-      return { host: parts[0], port: parts[1], user: parts[2], pass: parts[3] };
-    return null;
-  }
-
-  function getNextProxy() {
-    if (proxies.length === 0) return null;
-    const proxy = proxies[currentProxyIndex];
-    currentProxyIndex = (currentProxyIndex + 1) % proxies.length;
-    return proxy;
-  }
+  // Funções parseProxy e getNextProxy REMOVIDAS
 
   function removeLinha() {
     const lines = $("#lista_contas").value.split("\n");
@@ -149,13 +133,9 @@ function initCheckerLogic() {
   }
 
   function atualizarStats() {
-    $$(".val-total").forEach((el) => (el.textContent = total));
     $$(".val-lives").forEach((el) => (el.textContent = lives));
     $$(".val-dies").forEach((el) => (el.textContent = dies));
     $$(".val-errors").forEach((el) => (el.textContent = errors));
-    $$(".val-tested").forEach((el) => (el.textContent = tested));
-    const progress = total > 0 ? Math.round((tested / total) * 100) : 0;
-    $("#progress-percent").textContent = progress + "%";
   }
 
   function adicionarResultado(tipo, conteudo, resposta) {
@@ -189,30 +169,16 @@ function initCheckerLogic() {
     }
 
     const conteudo = lista[tested];
-    const currentProxy = getNextProxy();
-
+    
+    // Lógica de proxy simplificada
     let ajaxData = { lista: conteudo };
-    let statusMessage = `<span class="loading-spinner"></span> Testando: ${conteudo} [IP Local]`;
-
-    if (currentProxy) {
-      statusMessage = `<span class="loading-spinner"></span> Testando: ${conteudo} [${currentProxy.host}:${currentProxy.port}]`;
-      ajaxData = {
-        ...ajaxData,
-        ...{
-          proxy_host: currentProxy.host,
-          proxy_port: currentProxy.port,
-          proxy_user: currentProxy.user || "",
-          proxy_pass: currentProxy.pass || "",
-        },
-      };
-    }
+    let statusMessage = `<span class="loading-spinner"></span> Testando: ${conteudo}`;
 
     $("#estatus").className = "status-badge badge bg-info";
     $("#estatus").innerHTML = statusMessage;
 
     try {
       const response = await fetch("/api/tools/shein_checker", {
-        // URL DA API ATUALIZADA
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(ajaxData),
@@ -253,6 +219,40 @@ function initCheckerLogic() {
       }
     }
   }
+
+  $("#chk-start").addEventListener("click", function () {
+    if (paused) {
+      paused = false;
+      $("#chk-start").disabled = true;
+      $("#chk-pause").disabled = false;
+      const lista = $("#lista_contas")
+        .value.trim()
+        .split("\n")
+        .filter((line) => line.trim());
+      testar(lista); 
+      return;
+    }
+
+    const lista = $("#lista_contas")
+      .value.trim()
+      .split("\n")
+      .filter((line) => line.trim());
+    if (lista.length === 0) return;
+    
+    // Lógica de proxy removida
+    total = lista.length;
+    tested = lives = dies = errors = 0;
+    stopped = false;
+    paused = false;
+
+    atualizarStats();
+
+    $("#chk-start").disabled = true;
+    $("#chk-stop").disabled = false;
+    $("#chk-pause").disabled = false;
+
+    testar(lista);
+  });
 
   $("#chk-start").addEventListener("click", function () {
     if (paused) {
@@ -324,6 +324,7 @@ function initCheckerLogic() {
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
+
 
 
 
