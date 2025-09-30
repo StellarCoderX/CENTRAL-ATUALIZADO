@@ -182,7 +182,7 @@ async renderDashboardPage() {
                     <a href="#gg-vtex-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-shopping-cart"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK GG VTEX</h2>
-                        <p class="tool-desc terminal-text">Testador de contas de lojas VTEX.</p>
+                        <p class="tool-desc terminal-text">CHK GERADAS GATE VTEX.</p>
                         <div class="tool-status">
                             <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
@@ -372,6 +372,7 @@ async renderDashboardPage() {
 window.UI = UI;
 
 export default UI;
+
 
 
 
