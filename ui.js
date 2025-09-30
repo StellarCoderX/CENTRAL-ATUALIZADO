@@ -175,7 +175,7 @@ async renderDashboardPage() {
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                            <span class="status-indicator online"></span><span class="status-text offline">ONLINE</span>
                         </div>
                     </a>
                     
@@ -372,6 +372,7 @@ async renderDashboardPage() {
 window.UI = UI;
 
 export default UI;
+
 
 
 
