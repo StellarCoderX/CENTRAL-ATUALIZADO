@@ -208,11 +208,16 @@ async renderDashboardPage() {
     });
   },
 
+  // /ui.js
+
   async renderToolPage() {
     const hash = window.location.hash.substring(1);
-    const toolName = hash.replace('-checker', '');
+    
+    // CORREÇÃO: Converte hífens do nome para underscores para corresponder ao nome da pasta.
+    const toolName = hash.replace('-checker', '').replace(/-/g, '_');
 
     try {
+      // O caminho agora será gerado corretamente (ex: ../tools/gg_vtex_checker/index.js)
       const toolModule = await import(`../tools/${toolName}_checker/index.js`);
       
       if (toolModule && typeof toolModule.render === 'function') {
@@ -367,6 +372,7 @@ async renderDashboardPage() {
 window.UI = UI;
 
 export default UI;
+
 
 
 
