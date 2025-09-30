@@ -108,7 +108,7 @@ const UI = {
     });
   },
 
-  async renderDashboardPage() {
+async renderDashboardPage() {
     document.title = "Dashboard | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
     if (!user) {
@@ -178,13 +178,34 @@ const UI = {
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
-                </div>
+                    
+                    <a href="#gg-vtex-checker" class="tool-card cyber-tool-card">
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-shopping-cart"></i><div class="tool-icon-glow"></div></div>
+                        <h2 class="tool-name cyber-text">CHK GG VTEX</h2>
+                        <p class="tool-desc terminal-text">Testador de contas de lojas VTEX.</p>
+                        <div class="tool-status">
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
+                        </div>
                     </a>
-
-                </div>
+                    </div>
             </main>
         </div>`;
+        
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
+
+    // Lógica para bloquear ferramentas offline
+    const toolCards = document.querySelectorAll('.tool-card');
+    toolCards.forEach(card => {
+      const isOffline = card.querySelector('.status-indicator.offline');
+      if (isOffline) {
+        card.style.opacity = '0.5';
+        card.style.cursor = 'not-allowed';
+        card.addEventListener('click', (event) => {
+          event.preventDefault();
+          UI.showFeedback('Esta ferramenta está offline e indisponível no momento.', 'error');
+        });
+      }
+    });
   },
 
   async renderToolPage() {
@@ -346,6 +367,7 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
 
