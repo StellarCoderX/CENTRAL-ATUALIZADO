@@ -202,7 +202,7 @@ async renderDashboardPage() {
         card.style.cursor = 'not-allowed';
         card.addEventListener('click', (event) => {
           event.preventDefault();
-          UI.showFeedback('Esta ferramenta está offline e indisponível no momento.', 'error');
+          UI.showFeedback('Esta ferramenta está offline.', 'error');
         });
       }
     });
@@ -367,6 +367,7 @@ async renderDashboardPage() {
 window.UI = UI;
 
 export default UI;
+
 
 
 
