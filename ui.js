@@ -167,7 +167,7 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK SHEIN</h2>
                         <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live | USE PROXY!</p>
                         <div class="tool-status">
-                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
+                            <span class="status-indicator OFFLINE"></span><span class="status-text OFFLINE">OFFLINE</span>
                         </div>
                     </a>
                     <a href="#vivasorte-checker" class="tool-card cyber-tool-card">
@@ -175,7 +175,7 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
+                            <span class="status-indicator OFFLINE"></span><span class="status-text OFFLINE">OFFLINE</span>
                         </div>
                     </a>
                 </div>
@@ -346,6 +346,7 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
 
