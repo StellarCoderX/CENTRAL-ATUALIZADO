@@ -116,15 +116,12 @@ function initCheckerLogic() {
     errors = 0;
   let stopped = true,
     paused = false;
-  // Variáveis de proxy removidas
   const audio = new Audio(
     "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
   );
 
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => document.querySelectorAll(selector);
-
-  // Funções parseProxy e getNextProxy REMOVIDAS
 
   function removeLinha() {
     const lines = $("#lista_contas").value.split("\n");
@@ -170,7 +167,6 @@ function initCheckerLogic() {
 
     const conteudo = lista[tested];
     
-    // Lógica de proxy simplificada
     let ajaxData = { lista: conteudo };
     let statusMessage = `<span class="loading-spinner"></span> Testando: ${conteudo}`;
 
@@ -229,40 +225,6 @@ function initCheckerLogic() {
         .value.trim()
         .split("\n")
         .filter((line) => line.trim());
-      testar(lista); 
-      return;
-    }
-
-    const lista = $("#lista_contas")
-      .value.trim()
-      .split("\n")
-      .filter((line) => line.trim());
-    if (lista.length === 0) return;
-    
-    // Lógica de proxy removida
-    total = lista.length;
-    tested = lives = dies = errors = 0;
-    stopped = false;
-    paused = false;
-
-    atualizarStats();
-
-    $("#chk-start").disabled = true;
-    $("#chk-stop").disabled = false;
-    $("#chk-pause").disabled = false;
-
-    testar(lista);
-  });
-
-  $("#chk-start").addEventListener("click", function () {
-    if (paused) {
-      paused = false;
-      $("#chk-start").disabled = true;
-      $("#chk-pause").disabled = false;
-      const lista = $("#lista_contas")
-        .value.trim()
-        .split("\n")
-        .filter((line) => line.trim());
       testar(lista); // Continua de onde parou
       return;
     }
@@ -273,17 +235,10 @@ function initCheckerLogic() {
       .filter((line) => line.trim());
     if (lista.length === 0) return;
 
-    const proxyList = $("#proxy_list")
-      .value.trim()
-      .split("\n")
-      .filter((line) => line.trim());
-    proxies = proxyList.map(parseProxy).filter((p) => p);
-
     total = lista.length;
     tested = lives = dies = errors = 0;
     stopped = false;
     paused = false;
-    currentProxyIndex = 0;
 
     atualizarStats();
 
@@ -315,17 +270,10 @@ function initCheckerLogic() {
     stopped = true;
     total = tested = lives = dies = errors = 0;
     paused = false;
-    proxies = [];
     atualizarStats();
     $("#lista_contas").value = "";
-    $("#proxy_list").value = "";
     $$(".results-container").forEach((el) => (el.innerHTML = ""));
     $("#estatus").className = "status-badge badge bg-warning";
     $("#estatus").innerHTML = '<i class="fas fa-clock"></i> Aguardando...';
   });
 }
-
-
-
-
-
