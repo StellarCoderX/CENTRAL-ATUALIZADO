@@ -56,10 +56,27 @@ const UI = {
                 </div>
             </div>
         </div>`;
-    document.getElementById("loginForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      Auth.login(e.target.email.value, e.target.password.value);
-    });
+    document
+      .getElementById("loginForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText =
+          submitBtn.querySelector(".btn-text").textContent;
+
+        // Desabilita o botão e mostra o estado de carregamento
+        submitBtn.disabled = true;
+        submitBtn.querySelector(".btn-text").textContent = "AUTENTICANDO...";
+
+        try {
+          await Auth.login(form.email.value, form.password.value);
+        } catch (error) {
+          // O erro já é exibido pelo api.js, então só precisamos reativar o botão
+          submitBtn.disabled = false;
+          submitBtn.querySelector(".btn-text").textContent = originalBtnText;
+        }
+      });
   },
 
   renderRegisterPage() {
@@ -108,7 +125,7 @@ const UI = {
     });
   },
 
-async renderDashboardPage() {
+  async renderDashboardPage() {
     document.title = "Dashboard | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
     if (!user) {
@@ -116,17 +133,28 @@ async renderDashboardPage() {
       return;
     }
 
-    const balance = (user.credits || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const balance = (user.credits || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
 
     this.appRoot.innerHTML = `
         <div class="dashboard-container cyber-fade-in">
             <header class="dashboard-header">
                 <div class="user-info">
                     <div class="user-avatar cyber-glow" id="header-avatar" style="font-size: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent));">
-                         ${user.avatarUrl ? `<img src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%;">` : (user.username ? user.username.charAt(0).toUpperCase() : 'U')}
+                         ${
+                           user.avatarUrl
+                             ? `<img src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%;">`
+                             : user.username
+                             ? user.username.charAt(0).toUpperCase()
+                             : "U"
+                         }
                     </div>
                     <div>
-                        <div class="cyber-text">Bem-vindo, ${user.username || user.email}</div>
+                        <div class="cyber-text">Bem-vindo, ${
+                          user.username || user.email
+                        }</div>
                         <div class="terminal-text" id="user-balance">Saldo: ${balance} | Sistema: <span class="status-online">ONLINE</span></div>
                     </div>
                 </div>
@@ -175,14 +203,14 @@ async renderDashboardPage() {
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
                         <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator online"></span><span class="status-text offline">ONLINE</span>
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
                     
                     <a href="#gg-vtex-checker" class="tool-card cyber-tool-card">
-                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-shopping-cart"></i><div class="tool-icon-glow"></div></div>
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK GG VTEX</h2>
-                        <p class="tool-desc terminal-text">CHK GERADAS GATE VTEX.</p>
+                        <p class="tool-desc terminal-text">CHK GERADAS GATE VTEX</p>
                         <div class="tool-status">
                             <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
@@ -190,19 +218,19 @@ async renderDashboardPage() {
                     </div>
             </main>
         </div>`;
-        
+
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
 
     // Lógica para bloquear ferramentas offline
-    const toolCards = document.querySelectorAll('.tool-card');
-    toolCards.forEach(card => {
-      const isOffline = card.querySelector('.status-indicator.offline');
+    const toolCards = document.querySelectorAll(".tool-card");
+    toolCards.forEach((card) => {
+      const isOffline = card.querySelector(".status-indicator.offline");
       if (isOffline) {
-        card.style.opacity = '0.5';
-        card.style.cursor = 'not-allowed';
-        card.addEventListener('click', (event) => {
+        card.style.opacity = "0.5";
+        card.style.cursor = "not-allowed";
+        card.addEventListener("click", (event) => {
           event.preventDefault();
-          UI.showFeedback('Esta ferramenta está offline.', 'error');
+          UI.showFeedback("Esta ferramenta está offline.", "error");
         });
       }
     });
@@ -212,18 +240,20 @@ async renderDashboardPage() {
 
   async renderToolPage() {
     const hash = window.location.hash.substring(1);
-    
+
     // CORREÇÃO: Converte hífens do nome para underscores para corresponder ao nome da pasta.
-    const toolName = hash.replace('-checker', '').replace(/-/g, '_');
+    const toolName = hash.replace("-checker", "").replace(/-/g, "_");
 
     try {
       // O caminho agora será gerado corretamente (ex: ../tools/gg_vtex_checker/index.js)
       const toolModule = await import(`../tools/${toolName}_checker/index.js`);
-      
-      if (toolModule && typeof toolModule.render === 'function') {
+
+      if (toolModule && typeof toolModule.render === "function") {
         toolModule.render(this.appRoot);
       } else {
-        throw new Error(`O módulo da ferramenta ${toolName} não foi encontrado ou não tem a função render.`);
+        throw new Error(
+          `O módulo da ferramenta ${toolName} não foi encontrado ou não tem a função render.`
+        );
       }
     } catch (error) {
       console.error("Erro ao carregar a ferramenta:", error);
@@ -249,7 +279,15 @@ async renderDashboardPage() {
               <div class="form-group text-center">
                   <label class="form-label cyber-label">Foto de Perfil</label>
                   <div id="avatar-container" class="user-avatar cyber-glow" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--accent)); cursor: pointer;">
-                      ${user.avatarUrl ? `<img id="avatar-preview" src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%; object-fit: cover;">` : `<span id="avatar-initials">${user.username ? user.username.charAt(0).toUpperCase() : 'U'}</span>`}
+                      ${
+                        user.avatarUrl
+                          ? `<img id="avatar-preview" src="${user.avatarUrl}" style="width:100%; height:100%; border-radius: 50%; object-fit: cover;">`
+                          : `<span id="avatar-initials">${
+                              user.username
+                                ? user.username.charAt(0).toUpperCase()
+                                : "U"
+                            }</span>`
+                      }
                   </div>
                   <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
                   <p class="terminal-text" style="font-size: 0.8rem; margin-top: 0.5rem;">Clique na imagem para selecionar um novo avatar.</p>
@@ -280,66 +318,78 @@ async renderDashboardPage() {
       </div>
     `;
 
-    const avatarContainer = document.getElementById('avatar-container');
-    const avatarUploadInput = document.getElementById('avatarUpload');
-    
-    avatarContainer.addEventListener('click', () => {
+    const avatarContainer = document.getElementById("avatar-container");
+    const avatarUploadInput = document.getElementById("avatarUpload");
+
+    avatarContainer.addEventListener("click", () => {
       avatarUploadInput.click();
     });
 
-    avatarUploadInput.addEventListener('change', (event) => {
+    avatarUploadInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const initials = document.getElementById('avatar-initials');
-            if(initials) initials.remove();
-            let preview = document.getElementById('avatar-preview');
-            if(!preview) {
-                preview = document.createElement('img');
-                preview.id = 'avatar-preview';
-                preview.style.cssText = "width:100%; height:100%; border-radius: 50%; object-fit: cover;";
-                avatarContainer.appendChild(preview);
-            }
+          const initials = document.getElementById("avatar-initials");
+          if (initials) initials.remove();
+          let preview = document.getElementById("avatar-preview");
+          if (!preview) {
+            preview = document.createElement("img");
+            preview.id = "avatar-preview";
+            preview.style.cssText =
+              "width:100%; height:100%; border-radius: 50%; object-fit: cover;";
+            avatarContainer.appendChild(preview);
+          }
           preview.src = e.target.result;
-        }
+        };
         reader.readAsDataURL(file);
       }
     });
 
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    document
+      .getElementById("profileForm")
+      .addEventListener("submit", async (e) => {
         e.preventDefault();
         const file = avatarUploadInput.files[0];
 
         if (file) {
-            UI.showFeedback('Enviando nova foto de perfil...', 'info');
-            const formData = new FormData();
-            formData.append('avatar', file);
+          UI.showFeedback("Enviando nova foto de perfil...", "info");
+          const formData = new FormData();
+          formData.append("avatar", file);
 
-            try {
-                const response = await API.uploadAvatar(formData);
-                if (response.avatarUrl) {
-                    Auth.updateCurrentUser({ avatarUrl: response.avatarUrl });
-                    UI.showFeedback('Foto de perfil atualizada com sucesso!', 'success');
-                }
-            } catch (error) {
-                console.error("Erro ao enviar avatar:", error);
+          try {
+            const response = await API.uploadAvatar(formData);
+            if (response.avatarUrl) {
+              Auth.updateCurrentUser({ avatarUrl: response.avatarUrl });
+              UI.showFeedback(
+                "Foto de perfil atualizada com sucesso!",
+                "success"
+              );
             }
+          } catch (error) {
+            console.error("Erro ao enviar avatar:", error);
+          }
         }
-        
-        const newPassword = document.getElementById('newPassword').value;
-        if(newPassword){
-            UI.showFeedback('Função de alterar senha ainda não implementada.', 'info');
+
+        const newPassword = document.getElementById("newPassword").value;
+        if (newPassword) {
+          UI.showFeedback(
+            "Função de alterar senha ainda não implementada.",
+            "info"
+          );
         }
-    });
+      });
   },
 
   renderCreditsPage() {
-      document.title = "Créditos | Central de Checkers Pro";
-      const user = Auth.getCurrentUser();
-      const balance = (user.credits || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    document.title = "Créditos | Central de Checkers Pro";
+    const user = Auth.getCurrentUser();
+    const balance = (user.credits || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
 
-      this.appRoot.innerHTML = `
+    this.appRoot.innerHTML = `
       <div class="main-container">
         <div class="content-wrapper cyber-fade-in" style="max-width: 600px;">
           <div class="main-card cyber-card">
@@ -366,20 +416,9 @@ async renderDashboardPage() {
         </div>
       </div>
       `;
-  }
+  },
 };
 
 window.UI = UI;
 
 export default UI;
-
-
-
-
-
-
-
-
-
-
-
