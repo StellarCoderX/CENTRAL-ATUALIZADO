@@ -9,14 +9,16 @@ const App = {
     "#profile": UI.renderProfilePage,
     "#credits": UI.renderCreditsPage,
     "#shein-checker": UI.renderToolPage,
-    "#vivasorte-checker": UI.renderToolPage, 
+    "#vivasorte-checker": UI.renderToolPage,
+    "#gg-vtex-checker": UI.renderToolPage, 
   },
   protectedRoutes: [
     "#dashboard", 
     "#profile", 
     "#credits", 
     "#shein-checker", 
-    "#vivasorte-checker" // <-- ROTA PROTEGIDA
+    "#vivasorte-checker"
+    "#gg-vtex-checker"
   ],
 
   init() {
@@ -51,5 +53,6 @@ const App = {
 App.init();
 
 export default App;
+
 
 
