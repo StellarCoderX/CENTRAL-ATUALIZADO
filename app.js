@@ -17,7 +17,7 @@ const App = {
     "#profile", 
     "#credits", 
     "#shein-checker", 
-    "#vivasorte-checker"
+    "#vivasorte-checker", // <-- VÍRGULA ADICIONADA
     "#gg-vtex-checker"
   ],
 
@@ -53,6 +53,3 @@ const App = {
 App.init();
 
 export default App;
-
-
-
