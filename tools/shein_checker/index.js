@@ -1,6 +1,5 @@
-// /tools/shein_checker/index.js
+// /tools/shein_checker/index.js (Versão Final Corrigida)
 
-// A função 'render' é a porta de entrada. Ela desenha a página e inicia a lógica.
 export function render(appRoot) {
   document.title = "Checker Shein | Central de Checkers Pro";
 
@@ -78,10 +77,6 @@ export function render(appRoot) {
                     <h5 class="mb-3"><i class="fas fa-list"></i> Lista de Contas (Email|Senha)</h5>
                     <textarea id="lista_contas" class="custom-textarea" placeholder="Insira suas contas no formato:\\nemail@exemplo.com|senha123\\noutro@email.com|minhasenha\\n\\nUma conta por linha..." rows="12"></textarea>
                 </div>
-                <div class="input-area">
-                    <h5 class="mb-3"><i class="fas fa-globe"></i> Configuração de Proxy (Opcional)</h5>
-                    <textarea id="proxy_list" class="custom-textarea" placeholder="Insira seus proxies (um por linha)...\\nDEIXE VAZIO para usar IP LOCAL." rows="8"></textarea>
-                </div>
             </div>
         </div>
         <div class="results-tabs">
@@ -107,7 +102,6 @@ export function render(appRoot) {
   initCheckerLogic();
 }
 
-// Lógica principal do checker, agora dentro do seu próprio módulo
 function initCheckerLogic() {
   let total = 0,
     tested = 0,
@@ -225,7 +219,7 @@ function initCheckerLogic() {
         .value.trim()
         .split("\n")
         .filter((line) => line.trim());
-      testar(lista); // Continua de onde parou
+      testar(lista); 
       return;
     }
 
