@@ -212,7 +212,7 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK GG VTEX</h2>
                         <p class="tool-desc terminal-text">CHK GERADAS GATE VTEX</p>
                         <div class="tool-status">
-                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
+                            <span class="status-indicator offline"></span><span class="status-text offline">offline</span>
                         </div>
                     </a>
                     </div>
@@ -422,3 +422,4 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
