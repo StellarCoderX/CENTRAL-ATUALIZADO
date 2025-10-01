@@ -10,7 +10,8 @@ const App = {
     "#credits": UI.renderCreditsPage,
     "#shein-checker": UI.renderToolPage,
     "#vivasorte-checker": UI.renderToolPage,
-    "#gg-vtex-checker": UI.renderToolPage, 
+    "#gg-vtex-checker": UI.renderToolPage,
+    "#cc-full-checker": UI.renderToolPage,
   },
   protectedRoutes: [
     "#dashboard", 
@@ -18,7 +19,8 @@ const App = {
     "#credits", 
     "#shein-checker", 
     "#vivasorte-checker", // <-- VÍRGULA ADICIONADA
-    "#gg-vtex-checker"
+    "#gg-vtex-checker",
+    "#cc-full-checker"
   ],
 
   init() {
@@ -53,3 +55,4 @@ const App = {
 App.init();
 
 export default App;
+
