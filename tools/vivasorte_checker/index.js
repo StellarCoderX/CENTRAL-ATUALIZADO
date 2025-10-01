@@ -1,4 +1,4 @@
-// /tools/vivasorte_checker/index.js (Código Final Atualizado)
+// /tools/vivasorte_checker/index.js
 
 export function render(appRoot) {
   document.title = "Checker Vivasorte | Central de Checkers Pro";
@@ -44,6 +44,12 @@ export function render(appRoot) {
           </button>
         </form>
 
+        <div class="text-center mt-3">
+            <button id="fetch-lives-btn" class="btn btn-secondary cyber-btn">
+                <i class="fas fa-sync-alt"></i> <span class="btn-text">Puxar Lives Aprovadas</span>
+            </button>
+        </div>
+
         <div id="status-message" class="terminal-text" style="display: none;"></div>
         <p id="error-message"></p>
 
@@ -86,6 +92,56 @@ function initSimplifiedLogic() {
   const aprovadasResults = document.getElementById('aprovadas-results');
   const reprovadasResults = document.getElementById('reprovadas-results');
 
+  // *** NOVA LÓGICA DO BOTÃO "PUXAR LIVES" ***
+  const fetchLivesBtn = document.getElementById('fetch-lives-btn');
+  fetchLivesBtn.addEventListener('click', async () => {
+    statusMessage.style.display = 'block';
+    statusMessage.textContent = 'Buscando lives aprovadas...';
+    errorMessage.textContent = '';
+    aprovadasResults.innerHTML = '';
+    aprovadasCount.textContent = '0';
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        errorMessage.textContent = 'Erro: Você não está logado.';
+        statusMessage.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/tools/vivasorte_lives", {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.message || 'Não foi possível buscar as lives.');
+        }
+        
+        statusMessage.textContent = `${data.total} live(s) encontrada(s)!`;
+        aprovadasCount.textContent = data.total;
+
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(item => {
+                const formattedString = `Aprovada: ${item.cpf}|${item.senha}|Nome:${item.nome}|Email:${item.email}|Telefone:${item.telefone}|Data de nascimento:${item.data_nascimento}`;
+                const div = document.createElement('div');
+                div.className = 'result-item aprovada';
+                div.textContent = formattedString;
+                aprovadasResults.appendChild(div);
+            });
+        } else {
+            aprovadasResults.innerHTML = '<div class="result-item">Nenhuma live encontrada.</div>';
+        }
+
+    } catch (err) {
+        errorMessage.textContent = `Erro: ${err.message}`;
+        statusMessage.style.display = 'none';
+    }
+  });
+
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const file = fileInput.files[0];
@@ -101,7 +157,6 @@ function initSimplifiedLogic() {
       return;
     }
 
-    // Limpa a interface antes de um novo envio
     errorMessage.textContent = '';
     statusMessage.style.display = 'block';
     statusMessage.textContent = 'Enviando arquivo e validando créditos...';
@@ -130,26 +185,18 @@ function initSimplifiedLogic() {
 
       const data = await response.json();
 
-      // **LÓGICA MAIS ROBUSTA**
-
-      // 1. Trata qualquer tipo de erro primeiro.
       if (!response.ok || data.status === 'error') {
           throw new Error(data.message || 'Ocorreu um erro desconhecido na API.');
       } 
       
-      // 2. VERIFICAÇÃO PRINCIPAL: Se a resposta tem 'clientId', significa que o processo
-      //    foi iniciado em segundo plano. Esta é a condição mais segura.
       if (data.clientId) {
-          statusMessage.textContent = data.message; // Exibe "Processamento iniciado..."
+          statusMessage.textContent = data.message;
           errorMessage.textContent = ''; 
-          
-          // Reativa o botão e para a execução
           submitBtn.disabled = false;
           submitBtn.querySelector('.btn-text').textContent = 'Verificar';
           return; 
       }
       
-      // 3. Se chegou aqui, a resposta contém os resultados finais.
       statusMessage.textContent = 'Processamento concluído!';
       const aprovadas = data.Aprovadas || [];
       const reprovadas = data.Reprovadas || [];
@@ -175,7 +222,6 @@ function initSimplifiedLogic() {
       errorMessage.textContent = `${err.message}`;
       statusMessage.style.display = 'none';
     } finally {
-      // Reativa o botão apenas se ele ainda estiver desativado (ou seja, em caso de erro)
       if (submitBtn.disabled) {
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text').textContent = 'Verificar';
