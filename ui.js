@@ -174,12 +174,12 @@ const UI = {
                 </div>
                 <div class="tools-grid" id="tools-grid">
                   
-                    <a href="#" class="tool-card cyber-tool-card">
+                    <a href="#cc-full-checker" class="tool-card cyber-tool-card"> // <-- LINK ATUALIZADO
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK CC FULL</h2>
                         <p class="tool-desc terminal-text">DEBITANDO | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
+                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
                     </a>
                    <a href="#" class="tool-card cyber-tool-card">
@@ -422,5 +422,6 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
 
