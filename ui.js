@@ -179,7 +179,7 @@ const UI = {
                         <h2 class="tool-name cyber-text">CHK CC FULL</h2>
                         <p class="tool-desc terminal-text">DEBITANDO | USE PROXY</p>
                         <div class="tool-status">
-                            <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
                    <a href="#" class="tool-card cyber-tool-card">
@@ -422,4 +422,5 @@ const UI = {
 window.UI = UI;
 
 export default UI;
+
 
