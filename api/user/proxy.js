@@ -12,17 +12,18 @@ export default async function handler(request, response) {
       return response.status(401).json({ message: 'Token de autorização não fornecido.' });
     }
 
-    // Prepara os cabeçalhos para a requisição final
+    // Prepara os cabeçalhos para a requisição final, incluindo o Content-Type original
     const headers = {
       'Authorization': authorizationToken,
-      'Content-Type': 'application/json',
+      'Content-Type': request.headers['content-type'],
     };
 
-    // Reencaminha a requisição POST para o servidor final com os dados do proxy
+    // Reencaminha a requisição POST para o servidor final, passando o corpo como um stream
     const apiResponse = await fetch("http://72.60.143.32:3010/api/user/proxy", {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(request.body), // Envia o corpo JSON recebido
+      body: request,     // <-- Alteração 1: Passa a requisição diretamente
+      duplex: 'half',  // <-- Alteração 2: Necessário para encaminhar o corpo da requisição
     });
 
     const responseData = await apiResponse.json();
