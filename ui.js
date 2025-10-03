@@ -65,14 +65,12 @@ const UI = {
         const originalBtnText =
           submitBtn.querySelector(".btn-text").textContent;
 
-        // Desabilita o botão e mostra o estado de carregamento
         submitBtn.disabled = true;
         submitBtn.querySelector(".btn-text").textContent = "AUTENTICANDO...";
 
         try {
           await Auth.login(form.email.value, form.password.value);
         } catch (error) {
-          // O erro já é exibido pelo api.js, então só precisamos reativar o botão
           submitBtn.disabled = false;
           submitBtn.querySelector(".btn-text").textContent = originalBtnText;
         }
@@ -193,7 +191,7 @@ const UI = {
                     <a href="#shein-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-shield-alt"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK SHEIN</h2>
-                        <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live | USE PROXY!</p>
+                        <p class="tool-desc terminal-text">CHK DE LOGIN Pode sair Falsa Live!</p>
                         <div class="tool-status">
                             <span class="status-indicator offline"></span><span class="status-text offline">OFFLINE</span>
                         </div>
@@ -201,18 +199,18 @@ const UI = {
                     <a href="#vivasorte-checker" class="tool-card cyber-tool-card">
                         <div class="tool-icon cyber-tool-icon"><i class="fas fa-star"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK VIVASORTE</h2>
-                        <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES | USE PROXY</p>
+                        <p class="tool-desc terminal-text">CHK LOGIN PUXANDO INFORMACOES</p>
                         <div class="tool-status">
                             <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
                     
                     <a href="#gg-vtex-checker" class="tool-card cyber-tool-card">
-                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-credit-card"></i><div class="tool-icon-glow"></div></div>
+                        <div class="tool-icon cyber-tool-icon"><i class="fas fa-shopping-cart"></i><div class="tool-icon-glow"></div></div>
                         <h2 class="tool-name cyber-text">CHK GG VTEX</h2>
-                        <p class="tool-desc terminal-text">CHK GERADAS GATE VTEX</p>
+                        <p class="tool-desc terminal-text">Testador de contas de lojas VTEX.</p>
                         <div class="tool-status">
-                            <span class="status-indicator offline"></span><span class="status-text offline">offline</span>
+                            <span class="status-indicator online"></span><span class="status-text online">ONLINE</span>
                         </div>
                     </a>
                     </div>
@@ -221,7 +219,6 @@ const UI = {
 
     document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
 
-    // Lógica para bloquear ferramentas offline
     const toolCards = document.querySelectorAll(".tool-card");
     toolCards.forEach((card) => {
       const isOffline = card.querySelector(".status-indicator.offline");
@@ -236,16 +233,11 @@ const UI = {
     });
   },
 
-  // /ui.js
-
   async renderToolPage() {
     const hash = window.location.hash.substring(1);
-
-    // CORREÇÃO: Converte hífens do nome para underscores para corresponder ao nome da pasta.
     const toolName = hash.replace("-checker", "").replace(/-/g, "_");
 
     try {
-      // O caminho agora será gerado corretamente (ex: ../tools/gg_vtex_checker/index.js)
       const toolModule = await import(`../tools/${toolName}_checker/index.js`);
 
       if (toolModule && typeof toolModule.render === "function") {
@@ -306,6 +298,22 @@ const UI = {
                 <label for="confirmPassword" class="form-label cyber-label">Confirmar Nova Senha</label>
                 <input type="password" id="confirmPassword" class="form-input cyber-input" placeholder="Repita a nova senha">
               </div>
+              
+              <hr class="cyber-divider">
+              <h2 class="cyber-text" style="text-align:center; margin-bottom: 1.5rem;">Configurações de Proxy</h2>
+              <div class="form-group">
+                <label for="proxyHost" class="form-label cyber-label">Host do Proxy</label>
+                <input type="text" id="proxyHost" class="form-input cyber-input" placeholder="Ex: meu_host.com:8080">
+              </div>
+              <div class="form-group">
+                <label for="proxyUser" class="form-label cyber-label">Usuário do Proxy</label>
+                <input type="text" id="proxyUser" class="form-input cyber-input" placeholder="Opcional">
+              </div>
+              <div class="form-group">
+                <label for="proxyPass" class="form-label cyber-label">Senha do Proxy</label>
+                <input type="password" id="proxyPass" class="form-input cyber-input" placeholder="Opcional">
+              </div>
+              
               <button type="submit" class="btn btn-primary btn-full cyber-btn cyber-execute-btn mt-3">
                 <i class="fas fa-save"></i> <span class="btn-text">Salvar Alterações</span><div class="btn-glow"></div>
               </button>
@@ -350,33 +358,54 @@ const UI = {
       .getElementById("profileForm")
       .addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+        let changesMade = false;
+
         const file = avatarUploadInput.files[0];
-
         if (file) {
-          UI.showFeedback("Enviando nova foto de perfil...", "info");
-          const formData = new FormData();
-          formData.append("avatar", file);
-
-          try {
-            const response = await API.uploadAvatar(formData);
-            if (response.avatarUrl) {
-              Auth.updateCurrentUser({ avatarUrl: response.avatarUrl });
-              UI.showFeedback(
-                "Foto de perfil atualizada com sucesso!",
-                "success"
-              );
+            changesMade = true;
+            UI.showFeedback('Enviando nova foto de perfil...', 'info');
+            const formData = new FormData();
+            formData.append('avatar', file);
+            try {
+                const response = await API.uploadAvatar(formData);
+                if (response.avatarUrl) {
+                    Auth.updateCurrentUser({ avatarUrl: response.avatarUrl });
+                    UI.showFeedback('Foto de perfil atualizada com sucesso!', 'success');
+                }
+            } catch (error) {
+                console.error("Erro ao enviar avatar:", error);
             }
-          } catch (error) {
-            console.error("Erro ao enviar avatar:", error);
-          }
+        }
+        
+        const newPassword = document.getElementById('newPassword').value;
+        if(newPassword){
+            changesMade = true;
+            UI.showFeedback('Função de alterar senha ainda não implementada.', 'info');
         }
 
-        const newPassword = document.getElementById("newPassword").value;
-        if (newPassword) {
-          UI.showFeedback(
-            "Função de alterar senha ainda não implementada.",
-            "info"
-          );
+        const proxyHost = document.getElementById('proxyHost').value.trim();
+        const proxyUser = document.getElementById('proxyUser').value.trim();
+        const proxyPass = document.getElementById('proxyPass').value.trim();
+
+        if (proxyHost) {
+            changesMade = true;
+            UI.showFeedback('Atualizando configurações de proxy...', 'info');
+            try {
+                const proxyData = {
+                    proxy_host: proxyHost,
+                    proxy_user: proxyUser,
+                    proxy_pass: proxyPass
+                };
+                const response = await API.updateProxy(proxyData);
+                UI.showFeedback(response.message || 'Proxy atualizado!', 'success');
+            } catch (error) {
+                // O erro já é tratado e exibido pela função da API
+            }
+        }
+
+        if (!changesMade) {
+            UI.showFeedback('Nenhuma alteração para salvar.', 'info');
         }
       });
   },
@@ -422,7 +451,3 @@ const UI = {
 window.UI = UI;
 
 export default UI;
-
-
-
-
