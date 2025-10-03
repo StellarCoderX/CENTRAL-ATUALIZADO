@@ -52,8 +52,38 @@ const API = {
   register: (username, email, password) =>
     request("register", "POST", { username, email, password }),
   
-  // --- NOVA FUNÇÃO ADICIONADA AQUI ---
   uploadAvatar: (formData) => request("upload-avatar", "POST", formData, true),
+
+  // --- NOVA FUNÇÃO ADICIONADA ABAIXO ---
+  updateProxy: async (proxyData) => {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+        const response = await fetch('/api/user/proxy', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(proxyData)
+        });
+        
+        const responseData = await response.json();
+        if (!response.ok) {
+            throw new Error(responseData.message || "Ocorreu um erro ao atualizar o proxy.");
+        }
+        return responseData;
+    } catch (error) {
+        console.error("Erro na API (updateProxy):", error);
+        if (window.UI && typeof window.UI.showFeedback === "function") {
+            window.UI.showFeedback(error.message, "error");
+        }
+        throw error;
+    }
+  },
 };
 
 export default API;
