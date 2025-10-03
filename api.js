@@ -54,7 +54,6 @@ const API = {
   
   uploadAvatar: (formData) => request("upload-avatar", "POST", formData, true),
 
-  // --- NOVA FUNÇÃO ADICIONADA ABAIXO ---
   updateProxy: async (proxyData) => {
     const headers = {
         'Content-Type': 'application/json'
@@ -66,7 +65,7 @@ const API = {
 
     try {
         const response = await fetch('/api/user/proxy', {
-            method: 'POST',
+            method: 'PATCH', // <-- MÉTODO ALTERADO PARA PATCH
             headers: headers,
             body: JSON.stringify(proxyData)
         });
@@ -87,5 +86,3 @@ const API = {
 };
 
 export default API;
-
-
