@@ -1,5 +1,12 @@
 // /api/user/proxy.js
 
+// Adiciona a configuração para desabilitar o parser do corpo da requisição
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default async function handler(request, response) {
   // Aceita apenas requisições do tipo POST.
   if (request.method !== 'POST') {
@@ -12,7 +19,7 @@ export default async function handler(request, response) {
       return response.status(401).json({ message: 'Token de autorização não fornecido.' });
     }
 
-    // Prepara os cabeçalhos para a requisição final, incluindo o Content-Type original
+    // Prepara os cabeçalhos para a requisição final, repassando o Content-Type original
     const headers = {
       'Authorization': authorizationToken,
       'Content-Type': request.headers['content-type'],
@@ -22,10 +29,11 @@ export default async function handler(request, response) {
     const apiResponse = await fetch("http://72.60.143.32:3010/api/user/proxy", {
       method: 'POST',
       headers: headers,
-      body: request,     // <-- Alteração 1: Passa a requisição diretamente
-      duplex: 'half',  // <-- Alteração 2: Necessário para encaminhar o corpo da requisição
+      body: request,     // Passa a requisição diretamente como um stream
+      duplex: 'half',  // Necessário para encaminhar o corpo da requisição
     });
-
+    
+    // Tenta ler a resposta como JSON
     const responseData = await apiResponse.json();
     
     // Retorna a resposta (sucesso ou erro) do servidor final para o frontend
