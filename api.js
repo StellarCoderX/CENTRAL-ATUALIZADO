@@ -65,7 +65,7 @@ const API = {
 
     try {
         const response = await fetch('/api/user/proxy', {
-            method: 'PATCH', // <-- MÉTODO ALTERADO PARA PATCH
+            method: 'PATCH', // <-- CORREÇÃO APLICADA AQUI
             headers: headers,
             body: JSON.stringify(proxyData)
         });
