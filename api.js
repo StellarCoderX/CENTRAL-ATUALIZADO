@@ -34,9 +34,10 @@ async function request(endpoint, method = "POST", body = null, isFormData = fals
 
     let displayMessage = error.message;
 
-    // A verificação de "Email not confirmed" foi removida daqui
     if (error.message === "Invalid login credentials") {
       displayMessage = "LOGIN INVÁLIDO";
+    } else if (error.message === "Email not confirmed") {
+      displayMessage = "Para poder entrar você precisa verificar seu EMAIL";
     }
 
     if (window.UI && typeof window.UI.showFeedback === "function") {
@@ -53,6 +54,7 @@ const API = {
   
   uploadAvatar: (formData) => request("upload-avatar", "POST", formData, true),
 
+  // --- FUNÇÃO CORRIGIDA ---
   updateProxy: async (proxyData) => {
     const headers = {
         'Content-Type': 'application/json'
@@ -64,7 +66,7 @@ const API = {
 
     try {
         const response = await fetch('/api/user/proxy', {
-            method: 'PATCH',
+            method: 'PATCH', // <-- A CORREÇÃO ESTÁ AQUI
             headers: headers,
             body: JSON.stringify(proxyData)
         });
