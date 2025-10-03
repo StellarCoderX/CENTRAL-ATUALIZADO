@@ -1,15 +1,8 @@
 // /api/user/proxy.js
 
-// Adiciona a configuração para desabilitar o parser do corpo da requisição
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export default async function handler(request, response) {
-  // Aceita apenas requisições do tipo POST.
-  if (request.method !== 'POST') {
+  // Altera a verificação para aceitar apenas o método PATCH
+  if (request.method !== 'PATCH') {
     return response.status(405).json({ message: 'Método não permitido' });
   }
 
@@ -19,24 +12,20 @@ export default async function handler(request, response) {
       return response.status(401).json({ message: 'Token de autorização não fornecido.' });
     }
 
-    // Prepara os cabeçalhos para a requisição final, repassando o Content-Type original
     const headers = {
       'Authorization': authorizationToken,
-      'Content-Type': request.headers['content-type'],
+      'Content-Type': 'application/json', // O servidor final espera JSON
     };
 
-    // Reencaminha a requisição POST para o servidor final, passando o corpo como um stream
+    // Reencaminha a requisição usando o método PATCH
     const apiResponse = await fetch("http://72.60.143.32:3010/api/user/proxy", {
-      method: 'POST',
+      method: 'PATCH', // <-- MÉTODO ALTERADO PARA PATCH
       headers: headers,
-      body: request,     // Passa a requisição diretamente como um stream
-      duplex: 'half',  // Necessário para encaminhar o corpo da requisição
+      body: JSON.stringify(request.body), // Envia o corpo da requisição como JSON
     });
-    
-    // Tenta ler a resposta como JSON
+
     const responseData = await apiResponse.json();
     
-    // Retorna a resposta (sucesso ou erro) do servidor final para o frontend
     return response.status(apiResponse.status).json(responseData);
 
   } catch (error) {
