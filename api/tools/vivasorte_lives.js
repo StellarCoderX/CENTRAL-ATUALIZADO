@@ -53,8 +53,9 @@ export default async function handler(request, response) {
     console.error('Erro crítico na função serverless (vivasorte_lives):', error);
     return response.status(500).json({
       success: false,
-      message: 'Bug' + error.message
+      message: 'Bug: ' + error.message
     });
   }
 }
+
 
