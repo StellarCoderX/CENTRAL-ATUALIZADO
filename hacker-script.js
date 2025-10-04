@@ -29,7 +29,7 @@ class CyberHackerApp {
       this.handleFormSubmissions();
       this.setupToolCardAnimations();
       this.initTerminalEffects();
-      this.setupCyberCursor();
+      // this.setupCyberCursor(); // AJUSTE 2: Função do cursor animado desativada
     });
 
     window.addEventListener("resize", () => {
@@ -429,7 +429,8 @@ class CyberHackerApp {
     terminal.appendChild(cursor);
   }
 
-  // Cyber Cursor
+  // Cyber Cursor - DESATIVADO PARA OTIMIZAÇÃO
+  /*
   setupCyberCursor() {
     const cursor = document.createElement("div");
     cursor.className = "cyber-cursor";
@@ -459,6 +460,7 @@ class CyberHackerApp {
       cursor.style.transform = "scale(1)";
     });
   }
+  */
 
   // Form Validation
   initFormValidation() {
@@ -578,7 +580,7 @@ class CyberHackerApp {
   // Cyber Animations
   initCyberAnimations() {
     this.observeElements();
-    this.initScrollAnimations();
+    // this.initScrollAnimations(); // AJUSTE 3: Efeito de scroll no grid desativado
   }
 
   observeElements() {
@@ -634,7 +636,8 @@ class CyberHackerApp {
       particle.style.transform += ` translate(${xPos}px, ${yPos}px)`;
     });
 
-    // Parallax effect on cards
+    // Parallax effect on cards - AJUSTE 4: Efeito 3D nos cards ao mover o mouse desativado
+    /*
     const cards = document.querySelectorAll(".cyber-card");
     cards.forEach((card) => {
       const rect = card.getBoundingClientRect();
@@ -643,6 +646,7 @@ class CyberHackerApp {
 
       card.style.transform = `perspective(1000px) rotateY(${cardX}deg) rotateX(${-cardY}deg)`;
     });
+    */
   }
 
   // Resize Handler
@@ -790,19 +794,11 @@ const cyberApp = new CyberHackerApp();
 window.CyberHackerApp = cyberApp;
 
 // Additional CSS animations via JavaScript
+// AJUSTE 5: Estilos do cursor animado removidos
 const additionalStyles = `
     @keyframes blink {
         0%, 50% { opacity: 1; }
         51%, 100% { opacity: 0; }
-    }
-    
-    .cyber-cursor {
-        animation: cursor-pulse 1s ease-in-out infinite;
-    }
-    
-    @keyframes cursor-pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
     }
 `;
 
