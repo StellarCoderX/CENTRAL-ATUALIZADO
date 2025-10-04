@@ -17,6 +17,16 @@ export function render(appRoot) {
       .stat-value { font-size: 1.5em; font-weight: bold; }
       #status-message { margin-top: 15px; padding: 10px; background: rgba(0, 20, 0, 0.9); border-radius: 5px; text-align: center; }
       #error-message { color: #ff0040; margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
+      .cyber-info-panel {
+        background: rgba(0, 20, 0, 0.8);
+        border: 1px solid var(--primary);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.1);
+        font-family: 'JetBrains Mono', monospace;
+      }
     </style>
 
     <div class="checker-container cyber-fade-in">
@@ -28,6 +38,14 @@ export function render(appRoot) {
           </div>
           <p class="subtitle terminal-text">Envie um arquivo .txt para testar as contas.</p>
           <a href="#dashboard" class="link cyber-link" style="position: absolute; top: 20px; left: 20px;"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+
+        <div class="cyber-info-panel">
+            <p class="terminal-text" style="text-align: center;">
+                <strong>CUSTO POR VERIFICAÇÃO:</strong><br>
+                <span style="color: var(--success);">Aprovada (Live):</span> 25 créditos<br>
+                <span style="color: var(--danger);">Reprovada:</span> 0 créditos
+            </p>
         </div>
 
         <form id="gg-vtex-form">
@@ -137,7 +155,7 @@ function initVtexLogic() {
         statusMessage.textContent = data.message;
         errorMessage.textContent = "";
         submitBtn.disabled = false;
-        submitBtn.querySelector(".btn-text").textContent = "Verificar";
+        submitBtn.querySelector(".btn-t ext").textContent = "Verificar";
         return;
       }
 
