@@ -131,7 +131,6 @@ const UI = {
       return;
     }
 
-    // AJUSTE 1: Alterado para exibir créditos como número
     const credits = (user.credits || 0).toLocaleString("pt-BR");
 
     this.appRoot.innerHTML = `
@@ -408,7 +407,6 @@ const UI = {
       });
   },
 
-  // AJUSTE 3: Página de créditos totalmente redesenhada
   renderCreditsPage() {
     document.title = "Comprar Créditos | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
@@ -416,7 +414,7 @@ const UI = {
 
     this.appRoot.innerHTML = `
       <div class="main-container">
-        <div class="content-wrapper cyber-fade-in" style="max-width: 600px;">
+        <div class="content-wrapper cyber-fade-in" style="max-width: 700px;">
           <div class="main-card cyber-card">
             <div class="header">
                 <div class="logo">
@@ -431,13 +429,37 @@ const UI = {
             </div>
 
             <div class="credits-packages" style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="cyber-card" style="padding: 1.5rem; border-color: var(--secondary);">
+                <div class="cyber-card" style="padding: 1.5rem; border-color: var(--primary);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                         <div>
                             <h3 class="cyber-text">Pacote Inicial</h3>
                             <p class="terminal-text"><span style="color: var(--primary);">500 créditos</span> por <span style="color: var(--secondary);">R$ 50,00</span></p>
                         </div>
-                        <button id="buy-credits-btn" class="btn btn-primary cyber-btn">
+                        <button id="buy-credits-50" class="btn btn-primary cyber-btn">
+                            <i class="fab fa-pix"></i> Comprar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cyber-card" style="padding: 1.5rem; border-color: var(--secondary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 class="cyber-text">Pacote Avançado</h3>
+                            <p class="terminal-text"><span style="color: var(--primary);">1.200 créditos</span> por <span style="color: var(--secondary);">R$ 100,00</span></p>
+                        </div>
+                        <button id="buy-credits-100" class="btn btn-primary cyber-btn" style="border-color: var(--secondary); color: var(--secondary);">
+                            <i class="fab fa-pix"></i> Comprar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cyber-card" style="padding: 1.5rem; border-color: var(--accent);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 class="cyber-text">Pacote Profissional</h3>
+                            <p class="terminal-text"><span style="color: var(--primary);">2.800 créditos</span> por <span style="color: var(--secondary);">R$ 200,00</span></p>
+                        </div>
+                        <button id="buy-credits-200" class="btn btn-primary cyber-btn" style="border-color: var(--accent); color: var(--accent);">
                             <i class="fab fa-pix"></i> Comprar
                         </button>
                     </div>
@@ -452,11 +474,13 @@ const UI = {
       </div>
       `;
     
-      document.getElementById('buy-credits-btn').addEventListener('click', () => {
-          // A lógica para gerar e exibir o QR Code do PIX entraria aqui.
-          // Como o backend para isso ainda não foi implementado, exibimos um alerta informativo.
+      const showWipMessage = () => {
           UI.showFeedback('A função de pagamento PIX está em desenvolvimento. Em breve você poderá comprar créditos diretamente por aqui!', 'info', 7000);
-      });
+      };
+
+      document.getElementById('buy-credits-50').addEventListener('click', showWipMessage);
+      document.getElementById('buy-credits-100').addEventListener('click', showWipMessage);
+      document.getElementById('buy-credits-200').addEventListener('click', showWipMessage);
   },
 };
 
