@@ -131,10 +131,8 @@ const UI = {
       return;
     }
 
-    const balance = (user.credits || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    // AJUSTE 1: Alterado para exibir créditos como número
+    const credits = (user.credits || 0).toLocaleString("pt-BR");
 
     this.appRoot.innerHTML = `
         <div class="dashboard-container cyber-fade-in">
@@ -153,11 +151,11 @@ const UI = {
                         <div class="cyber-text">Bem-vindo, ${
                           user.username || user.email
                         }</div>
-                        <div class="terminal-text" id="user-balance">Saldo: ${balance} | Sistema: <span class="status-online">ONLINE</span></div>
+                        <div class="terminal-text" id="user-balance">Créditos: ${credits} | Sistema: <span class="status-online">ONLINE</span></div>
                     </div>
                 </div>
                 <nav class="flex gap-2">
-                    <a href="#credits" class="btn btn-primary cyber-btn"><i class="fas fa-coins"></i> Créditos</a>
+                    <a href="#credits" class="btn btn-primary cyber-btn"><i class="fas fa-coins"></i> Comprar Créditos</a>
                     <a href="#profile" class="btn btn-secondary cyber-btn"><i class="fas fa-user-cog"></i> Perfil</a>
                     <button id="logoutBtn" class="btn btn-danger cyber-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
                 </nav>
@@ -410,13 +408,11 @@ const UI = {
       });
   },
 
+  // AJUSTE 3: Página de créditos totalmente redesenhada
   renderCreditsPage() {
-    document.title = "Créditos | Central de Checkers Pro";
+    document.title = "Comprar Créditos | Central de Checkers Pro";
     const user = Auth.getCurrentUser();
-    const balance = (user.credits || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    const credits = (user.credits || 0).toLocaleString("pt-BR");
 
     this.appRoot.innerHTML = `
       <div class="main-container">
@@ -425,17 +421,27 @@ const UI = {
             <div class="header">
                 <div class="logo">
                     <div class="logo-icon cyber-icon"><i class="fas fa-coins"></i><div class="icon-pulse"></div></div>
-                    <h1 class="logo-text cyber-title">Adicionar Créditos</h1>
+                    <h1 class="logo-text cyber-title">Comprar Créditos</h1>
                 </div>
-                <p class="subtitle terminal-text">Seu saldo atual é: <span class="cyber-text">${balance}</span></p>
+                <p class="subtitle terminal-text">Seu saldo atual é: <span class="cyber-text">${credits} créditos</span></p>
             </div>
             
             <div class="cyber-info-panel">
-                <p class="terminal-text">Para adicionar créditos à sua conta, entre em contato com o suporte ou utilize um dos métodos abaixo.</p>
+                <p class="terminal-text" style="text-align: center;">Escolha um pacote abaixo para recarregar sua conta.</p>
             </div>
 
-            <div class="text-center mt-4">
-                <button class="btn btn-primary cyber-btn" onclick="alert('Função não implementada')"><i class="fab fa-pix"></i> Adicionar via PIX</button>
+            <div class="credits-packages" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="cyber-card" style="padding: 1.5rem; border-color: var(--secondary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 class="cyber-text">Pacote Inicial</h3>
+                            <p class="terminal-text"><span style="color: var(--primary);">500 créditos</span> por <span style="color: var(--secondary);">R$ 50,00</span></p>
+                        </div>
+                        <button id="buy-credits-btn" class="btn btn-primary cyber-btn">
+                            <i class="fab fa-pix"></i> Comprar
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="text-center mt-4">
@@ -445,10 +451,15 @@ const UI = {
         </div>
       </div>
       `;
+    
+      document.getElementById('buy-credits-btn').addEventListener('click', () => {
+          // A lógica para gerar e exibir o QR Code do PIX entraria aqui.
+          // Como o backend para isso ainda não foi implementado, exibimos um alerta informativo.
+          UI.showFeedback('A função de pagamento PIX está em desenvolvimento. Em breve você poderá comprar créditos diretamente por aqui!', 'info', 7000);
+      });
   },
 };
 
 window.UI = UI;
 
 export default UI;
-
