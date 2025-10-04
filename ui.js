@@ -425,10 +425,10 @@ const UI = {
             </div>
             
             <div class="cyber-info-panel">
-                <p class="terminal-text" style="text-align: center;">Escolha um pacote abaixo para recarregar sua conta.</p>
+                <p class="terminal-text" style="text-align: center;">Escolha um pacote abaixo ou entre em contato para valores maiores.</p>
             </div>
 
-            <div class="credits-packages" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="credits-packages" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
                 <div class="cyber-card" style="padding: 1.5rem; border-color: var(--primary);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                         <div>
@@ -464,6 +464,15 @@ const UI = {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <hr class="cyber-divider">
+            <div class="text-center">
+                <h3 class="cyber-text">Precisa de mais créditos?</h3>
+                <p class="terminal-text mb-3">Entre em contato para pacotes personalizados e ofertas especiais.</p>
+                <a href="https://wa.me/558799076568?text=Quero%20um%20pacote%20maior%20na%20central!" target="_blank" class="btn btn-secondary cyber-btn" style="background-color: #25D366; border-color: #25D366; color: white;">
+                    <i class="fab fa-whatsapp"></i> Falar com Suporte
+                </a>
             </div>
 
             <div class="text-center mt-4">
