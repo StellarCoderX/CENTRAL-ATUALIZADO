@@ -62,7 +62,8 @@ body {
   overflow-x: hidden;
   position: relative;
   line-height: 1.6;
-  cursor: crosshair;
+  /* AJUSTE 1: Cursor revertido para o padrão do sistema */
+  cursor: default;
 }
 
 /* Matrix Rain Background */
