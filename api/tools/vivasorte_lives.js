@@ -53,7 +53,8 @@ export default async function handler(request, response) {
     console.error('Erro crítico na função serverless (vivasorte_lives):', error);
     return response.status(500).json({
       success: false,
-      message: 'Erro interno no servidor da Vercel: ' + error.message
+      message: 'Bug' + error.message
     });
   }
 }
+
